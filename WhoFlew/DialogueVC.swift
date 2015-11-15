@@ -7,128 +7,213 @@
 //
 
 import UIKit
+import Foundation
 
-class DialogueVC: UIViewController {
+class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
 
+    //holds both the tableView and the sendBarView
+    @IBOutlet weak var scrollView: UIScrollView!
+    
+    @IBOutlet weak var tableView: UITableView!
+    
+    
+    //contains the content for the send bar at the bottom of view
     @IBOutlet weak var sendBarView: UIView!
+    //textView and sendButton for new messages
     @IBOutlet weak var buttonSend: UIButton!
     @IBOutlet weak var textView: UITextView!
+    //'tap to write' covers the textView 
+    //thinBorder seperates the textview from the messages in table
     @IBOutlet weak var labelCover: UILabel!
-    
-    
-
-    var kbHeight: CGFloat = 0.0
+    @IBOutlet weak var labelThinBorder: UILabel!
     
 
-    @IBOutlet var pageView: UIView!
+    var textViewOriginalHeight: CGFloat = 34.0
+    
+    var codeName: String = "PiGone"
+
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        self.tableView.delegate = self
+        self.tableView.dataSource = self
+        
+        self.tableView.estimatedRowHeight = 50.0
+        self.tableView.rowHeight = UITableViewAutomaticDimension
+        self.tableView.allowsSelection = false
+    
+        
+        self.buttonSend.hidden = true
+        self.labelThinBorder.hidden = true
+        
 
         self.labelCover.layer.cornerRadius = 12
         self.labelCover.layer.masksToBounds = true
         
         
-
         self.textView.layer.cornerRadius = 9
         self.textView.layer.masksToBounds = true
+        
         self.textView.scrollEnabled = false
         self.textView.sizeToFit()
         
         self.textView.editable = true
         self.textView.autocorrectionType = UITextAutocorrectionType.Yes
         
+        self.textView.setTranslatesAutoresizingMaskIntoConstraints(false)
         
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardDidHide:", name: UIKeyboardDidHideNotification, object: nil)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardChange:", name: UIKeyboardWillChangeFrameNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardDidShowNotification, object: nil)
 
         
-    }
-    
-    
-    
-    func keyboardDidHide(notification: NSNotification) {
-        println("here")
-    }
-    
-    func keyboardWillHide(notification: NSNotification) {
-        println("here1")
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide", name: UIKeyboardDidHideNotification, object: nil)
+
     }
     
 
     
-    func keyboardChange(notification: NSNotification){
-        
-        if self.kbHeight == 0 {
-            
-            self.labelCover.hidden = true
-            self.buttonSend.hidden = false
-        }
-        
-        
-        
-        if let userInfo = notification.userInfo {
-            if let keyboardSize =  (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue() {
-                
-                if self.sendBarView.frame.height + self.kbHeight > self.kbHeight + self.sendBarView.frame.origin.y {
-                    
-                }
-                else {
-                    self.kbHeight = keyboardSize.height - self.kbHeight
-                    //only move frame if its at the bottom
-                    if self.originalViewHeight == self.resultsView.frame.height || self.kbHeight < keyboardSize.height {
-                        
-                        self.animateTextField(true)
-                    }
-                }
-                
-                self.kbHeight = keyboardSize.height
-                
-            }
-        }
-        
-    }
-    
-
-    
-    
-    func animateTextField(up: Bool) {
-        var movement = (up ? -kbHeight : kbHeight)
-        
-        var duration: Double = 0.0
-        if up {
-            duration = 1.67
-        }
-        
-        
-        
-        UIView.animateWithDuration(duration, animations: {
-            
-            self.pageView.frame = CGRectMake(0.0, 0.0, self.pageView.frame.size.width, self.pageView.frame.size.height - self.kbHeight)
-            
-        })
-        
-
-        
-        self.kbHeight = 0
-        
-        
-        
-    }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+
+        self.tableView.reloadData()
         
-        
-        self.buttonSend.hidden = true
-        self.buttonSend.layer.cornerRadius = 9
-        self.buttonSend.layer.masksToBounds = true
+        self.scrollView.scrollRectToVisible(CGRectMake(self.scrollView.contentSize.width - 1, self.scrollView.contentSize.height - 1, 1, 1), animated: true)
+
         
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 10
+    }
+    
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        if let cell: MessageTableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForMessages") as? MessageTableViewCell {
+            
+  
+            if indexPath.row % 2 == 0 {
+ 
+                
+                cell.leftBar.backgroundColor = UIColor.redColor()
+            
+                cell.rightBar.backgroundColor = UIColor.clearColor()
+                
+
+                cell.labelMessage.text = "new message is very long and the very long message could mean that things are very long"
+                cell.labelMessage.textAlignment = NSTextAlignment.Left
+            }
+            else {
+                cell.leftBar.backgroundColor = UIColor.clearColor()
+
+                cell.rightBar.backgroundColor = UIColor.redColor()
+                
+                cell.labelMessage.text = "new message"
+                cell.labelMessage.textAlignment = NSTextAlignment.Right
+            }
+
+            return cell
+        }
+            
+        else {
+            return UITableViewCell()
+        }
+        
+        
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func keyBoardShow(notification: NSNotification) {
+        
+        
+        var info: Dictionary = notification.userInfo!
+        var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
+        
+        var viewOrigin: CGPoint = self.sendBarView.frame.origin
+        var viewHeight: CGFloat = self.sendBarView.frame.size.height
+        
+        
+        var visibleRect: CGRect = self.view.frame
+        visibleRect.size.height -= keyboardSize.height
+        
+        if (!CGRectContainsPoint(visibleRect, viewOrigin)) {
+            
+            var scrollPoint: CGPoint = CGPointMake(0.0, viewOrigin.y - visibleRect.size.height + viewHeight + 4)
+            self.scrollView.setContentOffset(scrollPoint, animated: true)
+            
+            self.labelCover.hidden = true
+            
+            self.buttonSend.hidden = false
+            self.labelThinBorder.hidden = false
+            
+        }
+    }
+    
+    
+    
+    func keyBoardHide() {
+        
+        
+        if !self.textView.hasText() {
+
+            self.labelCover.hidden = false
+            
+            self.buttonSend.hidden = true
+            self.labelThinBorder.hidden = true
+        }
+
+        
+        self.scrollView.scrollRectToVisible(CGRectMake(self.scrollView.contentSize.width - 1, self.scrollView.contentSize.height - 1, 1, 1), animated: true)
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    func textViewDidChange(textView: UITextView){
+    }
+    
+    
+    func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+        
+        var noReply = ["welcome!"]
+        if contains(noReply, self.codeName) {
+        
+            return false
+        }
+        
+            
+        else {
+            return true
+        }
+    }
+    
+
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

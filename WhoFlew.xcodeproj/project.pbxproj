@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C4297541BF92788002058F7 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4297531BF92787002058F7 /* MessageTableViewCell.swift */; };
 		9C8A4B0C1BF795C90016FBDD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B0B1BF795C90016FBDD /* AppDelegate.swift */; };
 		9C8A4B0F1BF795C90016FBDD /* WhoFlew.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B0D1BF795C90016FBDD /* WhoFlew.xcdatamodeld */; };
 		9C8A4B141BF795C90016FBDD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C8A4B121BF795C90016FBDD /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9C4297531BF92787002058F7 /* MessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
 		9C8A4B061BF795C90016FBDD /* WhoFlew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhoFlew.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C8A4B0A1BF795C90016FBDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C8A4B0B1BF795C90016FBDD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -64,6 +66,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9C4297551BF92908002058F7 /* Dialogue Table */ = {
+			isa = PBXGroup;
+			children = (
+				9C8A4B301BF7B8100016FBDD /* DialogueVC.swift */,
+				9C4297531BF92787002058F7 /* MessageTableViewCell.swift */,
+			);
+			name = "Dialogue Table";
+			sourceTree = "<group>";
+		};
 		9C8A4AFD1BF795C90016FBDD = {
 			isa = PBXGroup;
 			children = (
@@ -88,7 +99,7 @@
 				9C8A4B0B1BF795C90016FBDD /* AppDelegate.swift */,
 				9C8A4B121BF795C90016FBDD /* Main.storyboard */,
 				9C8A4B2E1BF7969E0016FBDD /* InboxVC.swift */,
-				9C8A4B301BF7B8100016FBDD /* DialogueVC.swift */,
+				9C4297551BF92908002058F7 /* Dialogue Table */,
 				9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */,
 				9C8A4B151BF795C90016FBDD /* Images.xcassets */,
 				9C8A4B171BF795C90016FBDD /* LaunchScreen.xib */,
@@ -231,6 +242,7 @@
 				9C8A4B2F1BF7969E0016FBDD /* InboxVC.swift in Sources */,
 				9C8A4B0F1BF795C90016FBDD /* WhoFlew.xcdatamodeld in Sources */,
 				9C8A4B0C1BF795C90016FBDD /* AppDelegate.swift in Sources */,
+				9C4297541BF92788002058F7 /* MessageTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

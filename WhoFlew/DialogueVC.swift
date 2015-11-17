@@ -80,10 +80,7 @@ class DialogueVC: UIViewController {
                 else {
                     self.kbHeight = keyboardSize.height - self.kbHeight
                     //only move frame if its at the bottom
-                    if self.originalViewHeight == self.resultsView.frame.height || self.kbHeight < keyboardSize.height {
-                        
-                        self.animateTextField(true)
-                    }
+                  
                 }
                 
                 self.kbHeight = keyboardSize.height

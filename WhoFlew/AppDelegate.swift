@@ -32,6 +32,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ]
     
     
+    //query loads codeNames
+    //will populate the inbox
+    var arrayOfCodeNames = ["here", "purple", "monkey"]
+    //[(String)]()
+    
+    
+    
+    
+    
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.

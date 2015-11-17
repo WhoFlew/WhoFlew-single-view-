@@ -37,10 +37,10 @@ class SettingsTableVC: UITableViewController {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         if section == 0 {
-            return 2
+            return 3
         }
         else if section == 1 {
-            return 4
+            return 3
         }
         else {
             return 1
@@ -50,10 +50,10 @@ class SettingsTableVC: UITableViewController {
     
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
-            return "Connection Code Details"
+            return "About"
         }
         else {
-            return "WhoFlew settings"
+            return "Details"
         }
     }
 
@@ -65,14 +65,21 @@ class SettingsTableVC: UITableViewController {
             if indexPath.row == 0 {
                 
                 var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
-                cell.textLabel!.text = "Generate With Custom Name: "
+                cell.textLabel!.text = "Summary"
+                return cell
+            }
+            
+            else if indexPath.row == 1 {
+                
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                cell.textLabel!.text = "Share WhoFlew"
                 return cell
             }
                 
             else {
                 
                 var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
-                cell.textLabel!.text = "Delete Every"
+                cell.textLabel!.text = "Express Yourself"
                 return cell
             }
         }
@@ -83,17 +90,11 @@ class SettingsTableVC: UITableViewController {
             
             if indexPath.row == 0 {
                 var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
-                cell.textLabel!.text = "Share WhoFlew"
-                return cell
-                
-            }
-            else if indexPath.row == 1 {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Contact Us"
                 return cell
                 
             }
-            else if indexPath.row == 2 {
+            else if indexPath.row == 1 {
                 var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Rules"
                 return cell
@@ -105,6 +106,7 @@ class SettingsTableVC: UITableViewController {
                 return cell
                 
             }
+
         }
 
 

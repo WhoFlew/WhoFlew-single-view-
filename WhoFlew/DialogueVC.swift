@@ -30,7 +30,9 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
 
     var textViewOriginalHeight: CGFloat = 34.0
     
+    
     var codeName: String = "PiGone"
+    var codeID: String = "PiGone"
 
     
     
@@ -80,10 +82,32 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
-        self.tableView.reloadData()
+        
         
         self.scrollView.scrollRectToVisible(CGRectMake(self.scrollView.contentSize.width - 1, self.scrollView.contentSize.height - 1, 1, 1), animated: true)
 
+       
+        if (self.tableView.contentSize.height >= UIScreen.mainScreen().bounds.size.height) {
+            
+            println(UIScreen.mainScreen().bounds.size.height)
+            println(self.tableView.contentSize.height)
+            
+            var scrollPoint: CGPoint = CGPointMake(0.0, self.tableView.contentSize.height)
+            self.tableView.setContentOffset(scrollPoint, animated: true)
+        }
+        else {
+            var scrollPoint: CGPoint = CGPointMake(0.0, self.scrollView.frame.size.height - self.tableView.frame.height)
+            self.tableView.setContentOffset(scrollPoint, animated: true)
+        }
+        
+        
+        self.tableView.reloadData()
+        
+        
+        //set the codeName as the title on the top Nav bar
+        self.title = self.codeName
+        
+        
         
     }
     
@@ -97,7 +121,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return 3
     }
     
     

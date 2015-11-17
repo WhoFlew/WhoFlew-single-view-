@@ -22,6 +22,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     //right bar item: button toggles between generate and pair views at the bottom
     var buttonPair: UIBarButtonItem!
     var buttonGenerate: UIBarButtonItem!
+    var buttonStop: UIBarButtonItem!
+    var pairViewVisible: Bool = true
     
 
     
@@ -52,6 +54,9 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         self.buttonGenerate = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toggleNavItem:")
         self.buttonGenerate.tag = 1
 
+        self.buttonStop = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Stop, target: self, action: "toggleNavItem:")
+        self.buttonStop.tag = 2
+        
         
         self.navigationItem.rightBarButtonItem = self.buttonGenerate
         
@@ -84,18 +89,22 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         self.textField.resignFirstResponder()
 
-
-        
+        var whichView: Bool = !self.pairViewVisible
+        if sender.tag == 2 {
+            whichView = self.pairViewVisible
+        }
         
         //tag 0: pair button. item at top nav bar
         //tag 1: generate button. item at top nav bar
-        if sender.tag == 0 {
+        //tag 2: stop button. item at top nav bar, looks like x, acts like cancel
+        if whichView {
             self.navigationItem.setRightBarButtonItem(self.buttonGenerate, animated: true)
             
             self.textField.placeholder = "Enter Connection Code"
             self.buttonGo.setTitle("Pair", forState: UIControlState.Normal)
             
             self.timeSlide.hidden = true
+            self.pairViewVisible = true
         }
         else {
             self.navigationItem.setRightBarButtonItem(self.buttonPair, animated: true)
@@ -104,13 +113,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             self.buttonGo.setTitle("Generate", forState: UIControlState.Normal)
             
             self.timeSlide.hidden = false
+            self.pairViewVisible = false
         }
         
         
 
     }
     
-    
+
     
     func keyBoardShow(notification: NSNotification) {
         
@@ -124,6 +134,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             self.connectionBar.frame.offset(dx: 0.0, dy: -keyboardSize.height)
         }
 
+    
+        self.navigationItem.setRightBarButtonItem(self.buttonStop, animated: true)
     }
     
     

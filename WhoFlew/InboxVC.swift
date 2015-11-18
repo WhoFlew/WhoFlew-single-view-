@@ -13,28 +13,27 @@ import UIKit
 
 
 class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
-
+    
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
     
     @IBOutlet var inboxTable: UITableView!
-    @IBOutlet weak var buttonEdit: UIBarButtonItem!
+    @IBOutlet weak var navItem_Edit: UIBarButtonItem!
     //right bar item: button toggles between generate and pair views at the bottom
-    var buttonPair: UIBarButtonItem!
-    var buttonGenerate: UIBarButtonItem!
-    var buttonStop: UIBarButtonItem!
-    var pairViewVisible: Bool = true
+    var navItem_Generate: UIBarButtonItem!
+    var navItem_Cancel: UIBarButtonItem!
+    var baseViewIsPair: Bool = true
     
-
+    
     
     
     @IBOutlet weak var connectionBar: UIView!
-    @IBOutlet weak var entryView: UIView!
-    @IBOutlet weak var timeSlide: UIView!
-
-    @IBOutlet weak var buttonGo: UIButton!
-    @IBOutlet weak var textField: UITextField!
+    @IBOutlet weak var baseView_Pair: UIView!
+    var view_BaseGen: UIView!
     
+    @IBOutlet weak var button_Pair: UIButton!
+    @IBOutlet weak var textField: UITextField!
+    var kbSize: CGSize = CGSize()
     
     
     override func viewDidLoad() {
@@ -43,99 +42,179 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         self.inboxTable.delegate = self
         self.inboxTable.dataSource = self
-    
         
         
+        //button: plus system symbol, changes view at bottom
+        //when pressed: from pair -> generate
+        self.navItem_Generate = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toggleRightNavItem:")
+        self.navItem_Generate.tag = 0
         
-        self.buttonPair = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: "toggleNavItem:")
-        self.buttonPair.tag = 0
-        
-        
-        self.buttonGenerate = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toggleNavItem:")
-        self.buttonGenerate.tag = 1
-
-        self.buttonStop = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Stop, target: self, action: "toggleNavItem:")
-        self.buttonStop.tag = 2
-        
-        
-        self.navigationItem.rightBarButtonItem = self.buttonGenerate
+        //button: x system symbol, changes view at bottom
+        //when pressed: from anything -> pair, resign first responder and return
+        self.navItem_Cancel = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Stop, target: self, action: "toggleRightNavItem:")
+        self.navItem_Cancel.tag = 1
         
         
+        //nav bar starts as generate tab
+        self.navigationItem.rightBarButtonItem = self.navItem_Generate
         
+        //textField for generate/pair doesnt use auto correct
         self.textField.autocorrectionType = UITextAutocorrectionType.No
         
-        self.buttonGo.layer.cornerRadius = 12
-        self.buttonGo.layer.masksToBounds = true
         
+        //button for generate/pair toggle
+        self.button_Pair.layer.cornerRadius = 12
+        self.button_Pair.layer.masksToBounds = true
+        
+        
+        
+        //89.0: height of pair/generate view (textfield and button)
+        //100.0: height of this view
+        //1.0: gap between the two
+        var yPosition: CGFloat = self.view.frame.size.height - 89.0 - 100.0 - 1.0
+        
+        self.view_BaseGen = UIView(frame: CGRect(x: 0.0, y: yPosition, width: self.view.frame.size.width, height: 100))
+        self.view_BaseGen.backgroundColor = self.appDelegate.allColorsArray[1]
+        
+        self.view.addSubview(self.view_BaseGen)
+        self.view_BaseGen.hidden = true
+        
+        
+        
+    }
     
+    
+    override func viewDidAppear(animated: Bool) {
         
-        
-        
+        //keyboard notifactions
+        //keyboard shown
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardDidShowNotification, object: nil)
-        
+        //keyboard down
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
-        
-        
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
-
     
-    func toggleNavItem(sender: AnyObject) {
+    
+    //editting functions for tableView(self.inboxView)
+    //navigation item: toggles between edit/done
+    @IBAction func toggleLeftNavItem(sender: AnyObject) {
         
-        self.textField.resignFirstResponder()
-
-        var whichView: Bool = !self.pairViewVisible
-        if sender.tag == 2 {
-            whichView = self.pairViewVisible
+        if self.navItem_Edit.title == "Edit" {
+            self.inboxTable.setEditing(true, animated: true)
+            self.navItem_Edit.title = "Done"
+        }
+            
+        else {
+            self.inboxTable.setEditing(false, animated: true)
+            self.navItem_Edit.title = "Edit"
+        }
+    }
+    
+    
+    
+    func toggleRightNavItem(sender: AnyObject) {
+        
+        if self.textField.isFirstResponder() {
+            self.textField.resignFirstResponder()
         }
         
-        //tag 0: pair button. item at top nav bar
-        //tag 1: generate button. item at top nav bar
-        //tag 2: stop button. item at top nav bar, looks like x, acts like cancel
-        if whichView {
-            self.navigationItem.setRightBarButtonItem(self.buttonGenerate, animated: true)
+        
+        
+        //tag 0: generate button. plus image, system icon
+        //tag 1: cancel button. stop image, sysmtem icon
+        if !self.baseViewIsPair || sender.tag == 1 {
+            self.baseViewIsPair = true
+            
+            self.navigationItem.setRightBarButtonItem(self.navItem_Generate, animated: true)
+            
+            self.button_Pair.setTitle("Pair", forState: UIControlState.Normal)
             
             self.textField.placeholder = "Enter Connection Code"
-            self.buttonGo.setTitle("Pair", forState: UIControlState.Normal)
             
-            self.timeSlide.hidden = true
-            self.pairViewVisible = true
+            //views for generate
+            self.baseView_Pair.backgroundColor = self.appDelegate.allColorsArray[2]
+    
+            
+            self.view_BaseGen.hidden = true
+            
+
         }
         else {
-            self.navigationItem.setRightBarButtonItem(self.buttonPair, animated: true)
+            self.baseViewIsPair = false
+            
+            self.navigationItem.setRightBarButtonItem(self.navItem_Cancel, animated: true)
+            
+            
+            self.button_Pair.setTitle("Generate", forState: UIControlState.Normal)
+            
             
             self.textField.placeholder = "Leave Blank for Random Code"
-            self.buttonGo.setTitle("Generate", forState: UIControlState.Normal)
             
-            self.timeSlide.hidden = false
-            self.pairViewVisible = false
+            
+            //views for generate
+            self.baseView_Pair.backgroundColor = self.appDelegate.allColorsArray[1]
+            
+
+            self.view_BaseGen.hidden = false
+
         }
         
         
-
+        
     }
     
-
+    
+    
+    
+    
+    
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        
+        if segue.identifier == "enterConvo" {
+            let nextVC = segue.destinationViewController as! DialogueVC
+            let sender = sender as! InboxVC
+            
+            
+            var index: Int = 0
+            
+            var range: Range = 0...self.appDelegate.arrayOfCodeNames.count
+            if contains(Array(range), index) {
+                nextVC.codeName = self.appDelegate.arrayOfCodeNames[index]
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     func keyBoardShow(notification: NSNotification) {
         
         var info: Dictionary = notification.userInfo!
-        var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
+        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
         var totalViewHeight = self.view.frame.size.height
-        var connectionBarTouchBottom = self.connectionBar.frame.origin.y + self.connectionBar.frame.size.height
+        var view_BaseTouchBottom = self.connectionBar.frame.origin.y + self.connectionBar.frame.size.height
         
-        if (totalViewHeight == connectionBarTouchBottom) {
-            self.connectionBar.frame.offset(dx: 0.0, dy: -keyboardSize.height)
+        if (totalViewHeight == view_BaseTouchBottom) {
+            self.connectionBar.frame.offset(dx: 0.0, dy: -self.kbSize.height)
         }
-
-    
-        self.navigationItem.setRightBarButtonItem(self.buttonStop, animated: true)
+        
+        if !self.baseViewIsPair {
+            self.view_BaseGen.frame.origin.y =  self.view_BaseGen.frame.origin.y - self.kbSize.height
+        }
+        
+        self.navigationItem.setRightBarButtonItem(self.navItem_Cancel, animated: true)
     }
     
     
@@ -145,8 +224,23 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         var info: Dictionary = notification.userInfo!
         var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
-        //self.scrollView.scrollRectToVisible(CGRectMake(self.scrollView.contentSize.width - 1, self.scrollView.contentSize.height - 1, 1, 1), animated: true)
+        if self.baseViewIsPair {
+            println("here")
+            self.view_BaseGen.frame.origin.y = self.view.frame.size.height - 89.0 - 100.0 - 1.0
+        }
+
+    }
+    
+    
+    
+    
+    
+    //textfield for the return key
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
         
+        
+        
+        return true
     }
     
     
@@ -158,7 +252,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 10
@@ -173,14 +276,19 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
             cell.detailTextLabel!.text = "4 hours"
             return cell
         }
-      
+            
         else {
             return UITableViewCell()
         }
         
-
     }
-
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -188,8 +296,11 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         tableView.deselectRowAtIndexPath(indexPath, animated: false)
-        self.performSegueWithIdentifier("enterConvo", sender: self)
         
+        if !self.textField.isFirstResponder() {
+            self.performSegueWithIdentifier("enterConvo", sender: self)
+        }
+
     }
     
     
@@ -205,48 +316,21 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     
-    
-    
-
-    
-
-    
-
-    
-
-
-    @IBAction func pressedEdit(sender: AnyObject) {
-        
-        if self.buttonEdit.title == "Edit" {
-            self.inboxTable.setEditing(true, animated: true)
-            self.buttonEdit.title = "Done"
-
-
-        }
-        else {
-            self.inboxTable.setEditing(false, animated: true)
-            self.buttonEdit.title = "Edit"
-
-        }
-        
-    }
-    
-    
-    
-
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         
-        
         if editingStyle == .Delete {
+        }
             
-            
-        } else if editingStyle == .Insert {
+        else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }
     }
     
     
     
+    
+    
+    //actions for tableview cells on swipe
     func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
         var clearRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "clear", handler:{ action, indexpath in
             
@@ -271,8 +355,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         return [deleteRowAction, clearRowAction]
     }
-
-
     
     
     
@@ -281,43 +363,24 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     
-
     
     
     
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        
-        
-        if segue.identifier == "enterConvo" {
-            let nextVC = segue.destinationViewController as! DialogueVC
-            let sender = sender as! InboxVC
-            
-            
-            var index: Int = 0
-            
-            var range: Range = 0...self.appDelegate.arrayOfCodeNames.count
-            if contains(Array(range), index) {
-                nextVC.codeName = self.appDelegate.arrayOfCodeNames[index]
-            }
-        }
-            
-            
-        
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+    }
     
     
     
@@ -325,12 +388,12 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     /*
     // MARK: - Navigation
-
+    
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    // Get the new view controller using segue.destinationViewController.
+    // Pass the selected object to the new view controller.
     }
     */
-
+    
 }

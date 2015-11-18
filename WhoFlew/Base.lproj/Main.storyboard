@@ -136,7 +136,7 @@
                         <nil key="title"/>
                         <barButtonItem key="leftBarButtonItem" title="Edit" id="Wk8-M2-Nm5">
                             <connections>
-                                <action selector="pressedEdit:" destination="5wo-Fg-lsv" id="cM4-HI-Dzu"/>
+                                <action selector="toggleLeftNavItem:" destination="5wo-Fg-lsv" id="RqT-K9-h51"/>
                             </connections>
                         </barButtonItem>
                         <button key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="DL0-Fy-8cp">
@@ -157,7 +157,7 @@
                         <outlet property="button_Pair" destination="pHN-65-TdA" id="2mp-S4-RRf"/>
                         <outlet property="connectionBar" destination="Qd3-En-YBx" id="TFW-kq-EBt"/>
                         <outlet property="inboxTable" destination="59Z-Gc-jBG" id="WMK-Rv-C0C"/>
-                        <outlet property="navItem_Edit" destination="Wk8-M2-Nm5" id="Ndh-Uf-emW"/>
+                        <outlet property="navItem_Edit" destination="Wk8-M2-Nm5" id="7if-wS-Ix2"/>
                         <outlet property="textField" destination="9PR-qq-Xmu" id="cdW-gd-i9w"/>
                         <segue destination="gRL-2u-rD0" kind="show" identifier="enterConvo" id="TU7-Gd-bZo"/>
                     </connections>

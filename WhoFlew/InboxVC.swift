@@ -15,7 +15,7 @@ import UIKit
 class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-    
+    let utilities = Utilities()
     
     @IBOutlet var inboxTable: UITableView!
     @IBOutlet weak var navItem_Edit: UIBarButtonItem!
@@ -28,12 +28,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     @IBOutlet weak var connectionBar: UIView!
-    @IBOutlet weak var baseView_Pair: UIView!
-    var view_BaseGen: UIView!
+    @IBOutlet weak var baseView: UIView!
+    var baseView_Ext: UIView!
     
-    @IBOutlet weak var button_Pair: UIButton!
+    @IBOutlet weak var button_Go: UIButton!
     @IBOutlet weak var textField: UITextField!
     var kbSize: CGSize = CGSize()
+    var kbIsUp: Bool = false
+    
+    var activityWheel = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.WhiteLarge)
+    
     
     
     override func viewDidLoad() {
@@ -63,8 +67,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         
         //button for generate/pair toggle
-        self.button_Pair.layer.cornerRadius = 12
-        self.button_Pair.layer.masksToBounds = true
+        self.button_Go.layer.cornerRadius = 12
+        self.button_Go.layer.masksToBounds = true
+        
+        
+        //loading wheel replaces button
+        self.activityWheel.frame = self.button_Go.frame
+        self.baseView.addSubview(self.activityWheel)
+        self.activityWheel.hidden = true
         
         
         
@@ -73,11 +83,11 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         //1.0: gap between the two
         var yPosition: CGFloat = self.view.frame.size.height - 89.0 - 100.0 - 1.0
         
-        self.view_BaseGen = UIView(frame: CGRect(x: 0.0, y: yPosition, width: self.view.frame.size.width, height: 100))
-        self.view_BaseGen.backgroundColor = self.appDelegate.allColorsArray[1]
+        self.baseView_Ext = UIView(frame: CGRect(x: 0.0, y: yPosition, width: self.view.frame.size.width, height: 100))
+        self.baseView_Ext.backgroundColor = self.appDelegate.allColorsArray[1]
         
-        self.view.addSubview(self.view_BaseGen)
-        self.view_BaseGen.hidden = true
+        self.view.addSubview(self.baseView_Ext)
+        self.baseView_Ext.hidden = true
         
         
         
@@ -92,77 +102,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
         //keyboard down
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
     }
-    
-    
-    
-    //editting functions for tableView(self.inboxView)
-    //navigation item: toggles between edit/done
-    @IBAction func toggleLeftNavItem(sender: AnyObject) {
-        
-        if self.navItem_Edit.title == "Edit" {
-            self.inboxTable.setEditing(true, animated: true)
-            self.navItem_Edit.title = "Done"
-        }
-            
-        else {
-            self.inboxTable.setEditing(false, animated: true)
-            self.navItem_Edit.title = "Edit"
-        }
-    }
-    
-    
-    
-    func toggleRightNavItem(sender: AnyObject) {
-        
-        if self.textField.isFirstResponder() {
-            self.textField.resignFirstResponder()
-        }
-        
-        
-        
-        //tag 0: generate button. plus image, system icon
-        //tag 1: cancel button. stop image, sysmtem icon
-        if !self.baseViewIsPair || sender.tag == 1 {
-            self.baseViewIsPair = true
-            
-            self.navigationItem.setRightBarButtonItem(self.navItem_Generate, animated: true)
-            
-            self.button_Pair.setTitle("Pair", forState: UIControlState.Normal)
-            
-            self.textField.placeholder = "Enter Connection Code"
-            
-            //views for generate
-            self.baseView_Pair.backgroundColor = self.appDelegate.allColorsArray[2]
-    
-            
-            self.view_BaseGen.hidden = true
-            
-
-        }
-        else {
-            self.baseViewIsPair = false
-            
-            self.navigationItem.setRightBarButtonItem(self.navItem_Cancel, animated: true)
-            
-            
-            self.button_Pair.setTitle("Generate", forState: UIControlState.Normal)
-            
-            
-            self.textField.placeholder = "Leave Blank for Random Code"
-            
-            
-            //views for generate
-            self.baseView_Pair.backgroundColor = self.appDelegate.allColorsArray[1]
-            
-
-            self.view_BaseGen.hidden = false
-
-        }
-        
-        
-        
-    }
-    
     
     
     
@@ -191,6 +130,182 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     
+
+    
+    
+    func isValidCode(input: String) -> Bool {
+       
+
+        
+        //if they have no internet connection
+        if !self.appDelegate.networkSignal {
+            self.presentViewController(self.alertsByType("network"), animated: true, completion: nil)
+            return false
+        }
+        
+            
+            
+        else if self.textField.hasText() {
+            
+            //code input must be at least 4
+            if count(input) < 4  {
+                self.presentViewController(self.alertsByType("short"), animated: true, completion: nil)
+                return false
+            }
+        
+                
+            //code input cannot be greater than 17
+            else if count(input) > 17 {
+                self.presentViewController(self.alertsByType("long"), animated: true, completion: nil)
+                return false
+            }
+                
+              
+            //returns false if invalid punctuation used (also rejects too many spaces)
+            else if self.utilities.invalidPunc(input) {
+                self.presentViewController(self.alertsByType("punc"), animated: true, completion: nil)
+                return false
+            }
+
+                
+            //valid codes with text in textField will fall to this clause
+            else {
+                return true
+            }
+            
+        }
+            
+            
+            
+            
+            
+        //generated codes without text in textField will be random (ie: purple monkey)
+        else if self.button_Go.titleLabel!.text == "Generate" {
+            return true
+        }
+        
+            
+        //pair input cannot be blank
+        else {
+            self.presentViewController(self.alertsByType("enterCodeToPair"), animated: true, completion: nil)
+            return false
+        }
+
+    }
+    
+    
+    @IBAction func pressedGo(sender: AnyObject) {
+        
+        
+        if self.isValidCode(self.textField.text) {
+            self.button_Go.hidden = true
+            
+            self.activityWheel.startAnimating()
+            self.activityWheel.hidden = false
+            
+            
+            if self.button_Go.titleLabel!.text == "Pair" {
+                self.pairWithCode(self.textField.text)
+            }
+            else if self.button_Go.titleLabel!.text == "Generate" {
+                self.generateCode(self.textField.text)
+            }
+            
+        }
+            
+        //clear textField text is not valid codeName
+        else {
+            self.textField.text = ""
+        }
+
+    }
+    
+    
+    func pairWithCode(codeName: String) {
+        
+        
+        //reset button title
+    }
+    
+    func generateCode(codeName: String) {
+        
+        
+        //reset button title
+    }
+    
+    
+    
+    func alertsByType(alertType: String) -> UIAlertController {
+        
+        let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
+        
+        
+        //code must be at least 4 charas
+        if alertType == "short" {
+            var alert = UIAlertController(title: "☝️too short", message: "4 character minimum", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
+            
+            
+        
+        //code cannot be longer than 17 charas
+        else if alertType == "long" {
+            var alert = UIAlertController(title: "☝️too long", message: "17 character maximum", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
+        
+            
+        //when pairing, textfield must have text
+        else if alertType == "enterCodeToPair" {
+            var alert = UIAlertController(title: "☝️enter code", message: "codeNames are used to connect users", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
+        
+            
+        //invalid punctuation used
+        else if alertType == "punc" {
+            var alert = UIAlertController(title: "☝️invalid punctuation", message: "try emoticons", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
+        
+           
+        //no internet
+        else if alertType == "network" {
+            var alert = UIAlertController(title: "☝️weak signal", message: "connect to a stronger network signal", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
+            
+            
+            
+            
+            
+            
+            
+        else {
+            var alert = UIAlertController(title: "PiGone", message: "meet our mascot, PiGone the carrier pigeon", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -199,20 +314,21 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     func keyBoardShow(notification: NSNotification) {
+        self.kbIsUp = true
         
         var info: Dictionary = notification.userInfo!
         self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
-        var totalViewHeight = self.view.frame.size.height
-        var view_BaseTouchBottom = self.connectionBar.frame.origin.y + self.connectionBar.frame.size.height
-        
-        if (totalViewHeight == view_BaseTouchBottom) {
+
+        if self.kbIsUp {
             self.connectionBar.frame.offset(dx: 0.0, dy: -self.kbSize.height)
+            
+            if !self.baseViewIsPair {
+                self.baseView_Ext.frame.origin.y =  self.baseView_Ext.frame.origin.y - self.kbSize.height
+            }
         }
         
-        if !self.baseViewIsPair {
-            self.view_BaseGen.frame.origin.y =  self.view_BaseGen.frame.origin.y - self.kbSize.height
-        }
+        
         
         self.navigationItem.setRightBarButtonItem(self.navItem_Cancel, animated: true)
     }
@@ -220,15 +336,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     func keyBoardHide(notification: NSNotification) {
+        self.kbIsUp = false
         
         var info: Dictionary = notification.userInfo!
         var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
-        if self.baseViewIsPair {
-            println("here")
-            self.view_BaseGen.frame.origin.y = self.view.frame.size.height - 89.0 - 100.0 - 1.0
-        }
 
+        //89.0: height of pair/generate view (textfield and button)
+        //100.0: height of this view
+        //1.0: gap between the two
+        self.baseView_Ext.frame.origin.y = self.view.frame.size.height - 89.0 - 100.0 - 1.0
     }
     
     
@@ -255,7 +372,78 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     
+    //editting functions for tableView(self.inboxView)
+    //navigation item: toggles between edit/done
+    @IBAction func toggleLeftNavItem(sender: AnyObject) {
+        
+        if self.navItem_Edit.title == "Edit" {
+            self.inboxTable.setEditing(true, animated: true)
+            self.navItem_Edit.title = "Done"
+        }
+            
+        else {
+            self.inboxTable.setEditing(false, animated: true)
+            self.navItem_Edit.title = "Edit"
+        }
+    }
     
+    
+    
+    func toggleRightNavItem(sender: AnyObject) {
+        
+        if self.textField.isFirstResponder() {
+            self.textField.resignFirstResponder()
+        }
+        
+        
+        //tag 1: cancel button. stop image, sysmtem icon
+        if sender.tag == 1 {
+            self.textField.text = ""
+        }
+        
+        
+        //tag 0: generate button. plus image, system icon
+        //tag 1: cancel button. stop image, sysmtem icon
+        if !self.baseViewIsPair || sender.tag == 1 {
+            self.baseViewIsPair = true
+            
+            self.navigationItem.setRightBarButtonItem(self.navItem_Generate, animated: true)
+            
+            self.button_Go.setTitle("Pair", forState: UIControlState.Normal)
+            
+            self.textField.placeholder = "Enter Connection Code"
+            
+            //views for generate
+            self.baseView.backgroundColor = self.appDelegate.allColorsArray[2]
+    
+            
+            self.baseView_Ext.hidden = true
+            
+
+        }
+        else {
+            self.baseViewIsPair = false
+            
+            self.navigationItem.setRightBarButtonItem(self.navItem_Cancel, animated: true)
+            
+            
+            self.button_Go.setTitle("Generate", forState: UIControlState.Normal)
+            
+            
+            self.textField.placeholder = "Leave Blank for Random Code"
+            
+            
+            //views for generate
+            self.baseView.backgroundColor = self.appDelegate.allColorsArray[1]
+            
+
+            self.baseView_Ext.hidden = false
+
+        }
+        
+        
+        
+    }
     
     
     

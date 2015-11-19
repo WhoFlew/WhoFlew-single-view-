@@ -11,24 +11,26 @@ import Foundation
 
 class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
 
-    //holds both the tableView and the sendBarView
-    @IBOutlet weak var scrollView: UIScrollView!
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    
     
     @IBOutlet weak var tableView: UITableView!
     
     
     //contains the content for the send bar at the bottom of view
-    @IBOutlet weak var sendBarView: UIView!
+    @IBOutlet weak var baseView_Send: UIView!
     //textView and sendButton for new messages
-    @IBOutlet weak var buttonSend: UIButton!
+    @IBOutlet weak var button_Send: UIButton!
     @IBOutlet weak var textView: UITextView!
+    var kbSize: CGSize = CGSize()
+    var kbIsUp: Bool = false
+    
     //'tap to write' covers the textView 
     //thinBorder seperates the textview from the messages in table
-    @IBOutlet weak var labelCover: UILabel!
-    @IBOutlet weak var labelThinBorder: UILabel!
+    @IBOutlet weak var label_Cover: UILabel!
+    @IBOutlet weak var label_ThinBorder: UILabel!
     
 
-    var textViewOriginalHeight: CGFloat = 34.0
     
     
     var codeName: String = "PiGone"
@@ -48,12 +50,12 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.tableView.allowsSelection = false
     
         
-        self.buttonSend.hidden = true
-        self.labelThinBorder.hidden = true
+        self.button_Send.hidden = true
+        self.label_ThinBorder.hidden = true
         
 
-        self.labelCover.layer.cornerRadius = 12
-        self.labelCover.layer.masksToBounds = true
+        self.label_Cover.layer.cornerRadius = 12
+        self.label_Cover.layer.masksToBounds = true
         
         
         self.textView.layer.cornerRadius = 9
@@ -65,14 +67,15 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.textView.editable = true
         self.textView.autocorrectionType = UITextAutocorrectionType.Yes
         
-        self.textView.setTranslatesAutoresizingMaskIntoConstraints(false)
-        
+        //self.textView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.baseView_Send.setTranslatesAutoresizingMaskIntoConstraints(false)
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardDidShowNotification, object: nil)
 
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide", name: UIKeyboardDidHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardWillHideNotification, object: nil)
 
     }
     
@@ -82,32 +85,41 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
-        
-        
-        self.scrollView.scrollRectToVisible(CGRectMake(self.scrollView.contentSize.width - 1, self.scrollView.contentSize.height - 1, 1, 1), animated: true)
-
-       
-        if (self.tableView.contentSize.height >= UIScreen.mainScreen().bounds.size.height) {
-            
-            println(UIScreen.mainScreen().bounds.size.height)
-            println(self.tableView.contentSize.height)
-            
-            var scrollPoint: CGPoint = CGPointMake(0.0, self.tableView.contentSize.height)
-            self.tableView.setContentOffset(scrollPoint, animated: true)
-        }
-        else {
-            var scrollPoint: CGPoint = CGPointMake(0.0, self.scrollView.frame.size.height - self.tableView.frame.height)
-            self.tableView.setContentOffset(scrollPoint, animated: true)
-        }
-        
-        
-        self.tableView.reloadData()
-        
-        
         //set the codeName as the title on the top Nav bar
         self.title = self.codeName
         
         
+        
+
+        //cover label will turn red when network is not available
+        if self.appDelegate.networkSignal {
+            self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[1]
+            self.label_Cover.text = "tap to write"
+        }
+        
+        else {
+            self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[2]
+            self.label_Cover.text = "weak network signal"
+            
+            
+            //changes back to original
+            self.delay(6.0, closure: { () -> () in
+                self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[1]
+                self.label_Cover.text = "tap to write"
+            })
+        }
+        
+   
+
+       
+        
+        //scrolls tableView to show the last message in view
+        var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+        self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+        
+        
+        
+        self.tableView.reloadData()
         
     }
     
@@ -121,7 +133,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return 10
     }
     
     
@@ -169,49 +181,68 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     
+    
+    
+    
+    
     func keyBoardShow(notification: NSNotification) {
         
-        
         var info: Dictionary = notification.userInfo!
-        var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
-        
-        var viewOrigin: CGPoint = self.sendBarView.frame.origin
-        var viewHeight: CGFloat = self.sendBarView.frame.size.height
+        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
         
-        var visibleRect: CGRect = self.view.frame
-        visibleRect.size.height -= keyboardSize.height
-        
-        if (!CGRectContainsPoint(visibleRect, viewOrigin)) {
+        if !self.kbIsUp {
+
+            self.label_Cover.hidden = true
             
-            var scrollPoint: CGPoint = CGPointMake(0.0, viewOrigin.y - visibleRect.size.height + viewHeight + 4)
-            self.scrollView.setContentOffset(scrollPoint, animated: true)
+            self.button_Send.hidden = false
+            self.label_ThinBorder.hidden = false
             
-            self.labelCover.hidden = true
+
             
-            self.buttonSend.hidden = false
-            self.labelThinBorder.hidden = false
+            UIView.animateWithDuration(0.1, animations: {
+                
+                self.view.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height - self.kbSize.height)
+                
+            })
+            self.kbIsUp = true
             
         }
+        
+        
     }
     
     
     
-    func keyBoardHide() {
+    func keyBoardHide(notification: NSNotification) {
+        
+        var info: Dictionary = notification.userInfo!
+        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
         
         if !self.textView.hasText() {
 
-            self.labelCover.hidden = false
+            self.label_Cover.hidden = false
             
-            self.buttonSend.hidden = true
-            self.labelThinBorder.hidden = true
+            self.button_Send.hidden = true
+            self.label_ThinBorder.hidden = true
         }
 
+        if self.kbIsUp {
+            
+            self.view.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height + self.kbSize.height)
+
+
+            self.kbIsUp = false
+        }
         
-        self.scrollView.scrollRectToVisible(CGRectMake(self.scrollView.contentSize.width - 1, self.scrollView.contentSize.height - 1, 1, 1), animated: true)
         
+
     }
+    
+    
+    
+    
     
     
     
@@ -225,9 +256,21 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     func textViewShouldBeginEditing(textView: UITextView) -> Bool {
         
-        var noReply = ["welcome!"]
-        if contains(noReply, self.codeName) {
+
+        if contains(self.appDelegate.noReply, self.codeName) {
+            return false
+        }
         
+        else if self.appDelegate.networkSignal {
+            self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[2]
+            self.label_Cover.text = "weak network signal"
+            
+            
+            self.delay(6.0, closure: { () -> () in
+                self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[1]
+                self.label_Cover.text = "tap to write"
+            })
+            
             return false
         }
         
@@ -238,6 +281,23 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     }
     
 
+    
+    
+    
+    
+    
+    func delay(delay:Double, closure:()->()) {
+        dispatch_after(
+            dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(delay * Double(NSEC_PER_SEC))
+            ),
+            dispatch_get_main_queue(), closure)
+    }
+    
+    
+    
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

@@ -7,14 +7,14 @@
 //
 
 import UIKit
+import Parse
 import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-
+    
     let allColorsArray =  [
         UIColor.whiteColor(),
         UIColor(red: 58.0/255.0, green: 179.0/255.0, blue: 255.0/255.0, alpha: 1.0), //colorSkyCrisp
@@ -32,6 +32,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ]
     
     
+    //parse server id and key
+    let idDialogue: String = "0tsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
+    let keyDialogue: String = "dRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
+    
+    var userName: String = UIDevice.currentDevice().identifierForVendor.UUIDString
+    let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
+    
+    
+    
+    //true: when connection to the internet appears to be present (has yet to fail)
+    //false: when internet/parse connection has failed
+    var networkSignal: Bool = false
+    
+    
+    //codes that dont let users send messages
+    var noReply = ["welcome!"]
+    
+    
     //query loads codeNames
     //will populate the inbox
     var arrayOfCodeNames = ["here", "purple", "monkey"]
@@ -43,7 +61,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        //check here
+        self.networkSignal = true
+        
+        
+        
+        //set up parse with id and key
+        Parse.setApplicationId(self.idDialogue, clientKey: self.keyDialogue)
+        
         return true
     }
 

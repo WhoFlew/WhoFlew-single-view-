@@ -34,6 +34,9 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <segue destination="RBK-QC-54Z" kind="show" identifier="showTerms" id="fNx-HR-M2u"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1D7-7y-RZy" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -48,11 +51,11 @@
                         <viewControllerLayoutGuide type="bottom" id="sxR-XA-epl"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="0di-1S-T0a">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="64" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="59Z-Gc-jBG">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="503"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="544"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cellForInbox" textLabel="sNP-Xy-Ufz" detailTextLabel="LDb-G9-i3z" rowHeight="45" style="IBUITableViewCellStyleValue1" id="dBG-mL-oqg">
@@ -78,61 +81,33 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qd3-En-YBx" userLabel="Connection Bar View">
-                                <rect key="frame" x="0.0" y="511" width="600" height="89"/>
+                            <view contentMode="scaleToFill" placeholderIntrinsicWidth="600" placeholderIntrinsicHeight="48" translatesAutoresizingMaskIntoConstraints="NO" id="GeK-z0-m5l" userLabel="Base View">
+                                <rect key="frame" x="0.0" y="552" width="600" height="48"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GeK-z0-m5l" userLabel="Base View">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="89"/>
-                                        <subviews>
-                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Pair with Connection Code" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9PR-qq-Xmu">
-                                                <rect key="frame" x="8" y="8" width="584" height="30"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
-                                            </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pHN-65-TdA" userLabel="Go Button">
-                                                <rect key="frame" x="228" y="51" width="144" height="30"/>
-                                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="144" id="a6x-4l-40R"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
-                                                <state key="normal" title="Pair">
-                                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="pressedGo:" destination="5wo-Fg-lsv" eventType="touchUpInside" id="yZ8-V9-1MG"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <color key="backgroundColor" red="0.98039215690000003" green="0.25882352939999997" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
-                                        <constraints>
-                                            <constraint firstItem="9PR-qq-Xmu" firstAttribute="leading" secondItem="GeK-z0-m5l" secondAttribute="leadingMargin" id="D3P-Tg-9EN"/>
-                                            <constraint firstItem="pHN-65-TdA" firstAttribute="top" secondItem="9PR-qq-Xmu" secondAttribute="bottom" constant="13" id="GEV-Vx-1eX"/>
-                                            <constraint firstItem="9PR-qq-Xmu" firstAttribute="trailing" secondItem="GeK-z0-m5l" secondAttribute="trailingMargin" id="GxM-Vf-Um2"/>
-                                            <constraint firstItem="9PR-qq-Xmu" firstAttribute="top" secondItem="GeK-z0-m5l" secondAttribute="topMargin" id="bWF-Iw-vNv"/>
-                                            <constraint firstItem="pHN-65-TdA" firstAttribute="bottom" secondItem="GeK-z0-m5l" secondAttribute="bottomMargin" id="pdA-2J-2OH"/>
-                                            <constraint firstItem="9PR-qq-Xmu" firstAttribute="centerX" secondItem="pHN-65-TdA" secondAttribute="centerX" id="qkG-YF-1tC"/>
-                                        </constraints>
-                                    </view>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Pair with Connection Code" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9PR-qq-Xmu" userLabel="Text Field">
+                                        <rect key="frame" x="8" y="9" width="584" height="30"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.98039215690000003" green="0.25882352939999997" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstItem="GeK-z0-m5l" firstAttribute="top" secondItem="Qd3-En-YBx" secondAttribute="top" id="1H4-Lf-yyP"/>
-                                    <constraint firstItem="GeK-z0-m5l" firstAttribute="leading" secondItem="Qd3-En-YBx" secondAttribute="leading" id="8Va-ba-Gc5"/>
-                                    <constraint firstAttribute="bottom" secondItem="GeK-z0-m5l" secondAttribute="bottom" id="EGY-xb-n7H"/>
-                                    <constraint firstAttribute="trailing" secondItem="GeK-z0-m5l" secondAttribute="trailing" id="xGX-TP-dcj"/>
+                                    <constraint firstItem="9PR-qq-Xmu" firstAttribute="leading" secondItem="GeK-z0-m5l" secondAttribute="leading" constant="8" id="LHJ-H8-xbp"/>
+                                    <constraint firstAttribute="trailing" secondItem="9PR-qq-Xmu" secondAttribute="trailing" constant="8" id="aVw-Ur-Eeq"/>
+                                    <constraint firstItem="9PR-qq-Xmu" firstAttribute="top" secondItem="GeK-z0-m5l" secondAttribute="top" constant="9" id="uNl-Cg-Pbg"/>
+                                    <constraint firstAttribute="height" constant="48" id="yzo-Fb-xXk"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="4wm-f5-FFg"/>
-                            <constraint firstAttribute="trailing" secondItem="59Z-Gc-jBG" secondAttribute="trailing" id="CZL-ax-Lf2"/>
-                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="top" secondItem="0di-1S-T0a" secondAttribute="top" id="Iam-E0-OoL"/>
-                            <constraint firstItem="Qd3-En-YBx" firstAttribute="trailing" secondItem="59Z-Gc-jBG" secondAttribute="trailing" id="Uxm-Yu-5cs"/>
-                            <constraint firstItem="Qd3-En-YBx" firstAttribute="bottom" secondItem="sxR-XA-epl" secondAttribute="top" id="bWK-Tx-XnN"/>
-                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="leading" secondItem="Qd3-En-YBx" secondAttribute="leading" id="kjF-XV-Cgo"/>
-                            <constraint firstItem="Qd3-En-YBx" firstAttribute="top" secondItem="59Z-Gc-jBG" secondAttribute="bottom" constant="8" id="p8Y-mL-bzB"/>
+                            <constraint firstItem="GeK-z0-m5l" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="4KE-bG-2VF"/>
+                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="top" secondItem="0di-1S-T0a" secondAttribute="top" id="Ok3-UM-Inh"/>
+                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="iO1-6m-7lY"/>
+                            <constraint firstAttribute="bottom" secondItem="59Z-Gc-jBG" secondAttribute="bottom" constant="56" id="j0E-1w-f5D"/>
+                            <constraint firstItem="sxR-XA-epl" firstAttribute="top" secondItem="GeK-z0-m5l" secondAttribute="bottom" id="nGe-75-tG3"/>
+                            <constraint firstAttribute="trailing" secondItem="59Z-Gc-jBG" secondAttribute="trailing" id="oxM-VX-jzx"/>
+                            <constraint firstAttribute="trailing" secondItem="GeK-z0-m5l" secondAttribute="trailing" id="zd4-OX-4uy"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="mw3-aH-pnG">
@@ -145,7 +120,7 @@
                         <button key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="DL0-Fy-8cp">
                             <rect key="frame" x="180" y="7" width="240" height="30"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <state key="normal" title="WhoFlew">
+                            <state key="normal" title="FW">
                                 <color key="titleColor" red="0.98039215690000003" green="0.25882352939999997" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="titleShadowColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </state>
@@ -157,8 +132,6 @@
                     </navigationItem>
                     <connections>
                         <outlet property="baseView" destination="GeK-z0-m5l" id="XSo-iC-Ts5"/>
-                        <outlet property="button_Go" destination="pHN-65-TdA" id="849-8X-ogr"/>
-                        <outlet property="connectionBar" destination="Qd3-En-YBx" id="TFW-kq-EBt"/>
                         <outlet property="inboxTable" destination="59Z-Gc-jBG" id="WMK-Rv-C0C"/>
                         <outlet property="navItem_Edit" destination="Wk8-M2-Nm5" id="7if-wS-Ix2"/>
                         <outlet property="textField" destination="9PR-qq-Xmu" id="cdW-gd-i9w"/>
@@ -253,6 +226,9 @@
                                             <color key="titleColor" red="0.98039215690000003" green="0.25882352939999997" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                                             <color key="titleShadowColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <connections>
+                                            <action selector="pressedSend:" destination="gRL-2u-rD0" eventType="touchUpInside" id="N4P-9m-WtC"/>
+                                        </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="600" translatesAutoresizingMaskIntoConstraints="NO" id="9Ll-y2-KG5" userLabel="thin Border Label">
                                         <rect key="frame" x="0.0" y="3" width="600" height="1"/>
@@ -348,6 +324,89 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hqz-cV-31j" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2805" y="-778"/>
+        </scene>
+        <!--Terms of Service-->
+        <scene sceneID="DmY-fj-aEN">
+            <objects>
+                <viewController title="Terms of Service" extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" id="RBK-QC-54Z" customClass="EULAViewController" customModule="WhoFlew" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="zub-nF-mw5"/>
+                        <viewControllerLayoutGuide type="bottom" id="kwO-A0-H5f"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="3uL-eK-6FV">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView autoresizesSubviews="NO" clearsContextBeforeDrawing="NO" multipleTouchEnabled="YES" contentMode="top" bounces="NO" showsVerticalScrollIndicator="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vhZ-0M-nWu">
+                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <string key="text">READ THIS END USER LICENSE AGREEMENT (“EULA”) CAREFULLY, BECAUSE BY INSTALLING, COPYING, USING OR DISTRIBUTING THE SOFTWARE, YOU ARE AGREEING TO BE BOUND BY THESE TERMS AND CONDITIONS. IF YOU DO NOT AGREE TO ALL OF THESE TERMS AND CONDITIONS OR DO NOT WISH TO BE BOUND BY THIS EULA, DO NOT INSTALL, COPY, USE OR DISTRIBUTE THE SOFTWARE.
+
+1.	GENERAL: This EULA governs the use of the Software made available by or on behalf of ____________________, LLC (“Juup” “we”, “us” or “our”). For purposes of this EULA, “Software” means such application software, together with all components thereof and all updates, patches, fixes, modifications and enhancements thereto, including releases of new versions, whether provided to you via download, automatically without additional consent or action on your part or otherwise, and any and all accompanying documentation, files and materials.
+
+2.	LICENSE GRANT: Subject to your agreement and compliance with the terms and conditions of this EULA, Juup grants to you a limited, personal, non-exclusive, non-transferable and revocable license (without the right to sublicense) to install, use, access, display and run one copy of the Software on the hard disk or other fixed storage medium of up to three (3) digital processors, computers, or workstations (collectively, “Devices”) which you own or are under your control solely for your personal or internal business use. For the avoidance of doubt, the foregoing license may not be shared or used concurrently on multiple Devices without the purchase of additional licenses from Juup for each such Device accessing, displaying, running, and/or using the Software. For purposes of the foregoing license grant, except for Software designated “free” or “freeware” by Juup (i.e., Software that does not require the payment of any license fee at any time), the continued use of the Software pursuant to Section 2 above after the expiration of the applicable “trial period” designated by Juup without the payment of the applicable license fee is outside the scope of the foregoing license and a violation of this EULA and United States (“U.S.”) and international copyright laws.
+
+3.	RESTRICTIONS: The foregoing rights in and to the Software are the only rights granted to you in connection with this EULA, and any and all rights not expressly granted to you by the license described Section 2 above are expressly and fully reserved by us and/or our licensors. Your license and right to access and use the Software is limited to Devices owned or controlled by you. Except as specifically provided in this EULA or for backup or archival purposes specifically permitted by law, you may not use or make any other copies of the Software. In addition, you are not permitted to distribute, transmit, sublicense, permitted to tamper with or attempt to bypass, modify, defeat or otherwise circumvent the operation of the Software or alter, adapt, translate, reverse engineer, decompile, disassemble or otherwise attempt to discover or disclose the Software source code or underlying programming or architecture.
+
+4.	PROPRIETARY RIGHTS:  Juup owns all right, title and interest in and to the Software including, without limitation, all intellectual and proprietary rights appurtenant thereto, and, except for the limited license granted to you herein, nothing in this EULA shall be construed to transfer, convey, impair or otherwise adversely affect Juup’s  ownership or proprietary rights therein or any other Juup information or materials, tangible or intangible, in any form and in any medium.
+
+5.	CHANGE IN POLICIES: Juup reserves the right to change these policies at any time. While it is not our intention to do so, there may be factors outside of our control that require us to implement changes to our policies.
+
+6.	INSTALLATION POLICY: With all purchases, you are authorized to install the software on up to 3 computers that you directly own and operate. This allows you to install this software on your home computer, office and laptop. We also offer multiple license discounts if you find you require more copies. 
+
+7.	REFUND POLICY:  We have no refund policy on all of our software applications and bundles. We do this because we offer free, fully functional trial versions for all of our software this way you can download and try before you buy. These trial versions allow you to test the software risk-free before you decide to make a purchase.  Because there is no way to guarantee that our software was actually removed from a system after it is installed, this allows us to help fight fraudulent activity.
+
+8.	UPGRADE POLICY: From time to time there will be new versions that require rewrites of the application or parts of the application. This process requires significant research, design, development and testing time. In those situations and on a case by case basis, Juup reserves the right to require a fee for upgrading to the new and improved version of the software. Given the resources it would take, we would hate to withhold implementing these improvements purely based on financial decisions; charging a nominal fee for updates is the only way to accomplish this. If you don’t feel new functionality is worth the upgrade you can always stay with your current version. 
+
+9.	CROSS PLATFORM LICENSE POLICY: Your license is only good for the operating system you purchased it for.  So if you purchased the Windows version for example, but now you would like the OS X version,that will require a separate license.  
+
+10.	DISCONTINUED PURCHASE POLICY: As technology on the internet evolves there are times we may need to discontinue a program, theme, graphic etc.  When that happens, these are removed from our site and will no longer be accessible.  We therefore suggest you always keep local backups of all purchases so that you have them available to you. 
+
+11.	FONT CONVERSION DISCLAIMER: Please be aware that certain font vendors do not allow the conversion of their font software programs into other formats. Therefore, please review the End-User License Agreement for any font software you wish to convert to confirm that you have the right to do so.
+
+12.	DATA COLLECTION AND USE: You hereby agree that Juup, its parent, subsidiaries, affiliates, and their respective successors and assigns, may collect and use certain technical information associated with your use of the Software, including, without limitation, any information provided in connection with any support or technical services for the Software, in accordance with our privacy policy.
+
+13.	TERMINATION:  We have the right to terminate this license and your right to use the Software at any time for any reason, including in the event we reasonably believe you have failed to comply with any term or condition of this EULA. If this license or your right to use the Software terminates for any reason or you must stop all use of the Software and either return to us or destroy the Software and all copies of the Software that are in your possession or under your control. We may ask you to certify your compliance with the foregoing in writing, and you agree to do so if we request you to do so. 
+ 
+14.	SURVIVAL.  All provisions of this Agreement which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.
+
+15.	DISCLAIMER OF WARRANTY: THERE ARE NO REPRESENTATIONS OR WARRANTIES THAT APPLY OR THAT ARE MADE TO YOU IN ANY WAY IN CONNECTION WITH THE SOFTWARE OR THIS EULA. TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE DISCLAIM ALL REPRESENTATIONS AND WARRANTIES WITH RESPECT TO THE SOFTWARE AND YOUR ACCESS TO AND USE THEREOF, WHETHER EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE OR ANY WARRANTIES OF TITLE, NON-INFRINGEMENT AND/OR ARISING FROM A COURSE OF DEALING OR USAGE OF TRADE. WITHOUT LIMITING THE GENERALITY OF THE FOREGOING, THE SOFTWARE IS MADE AVAILABLE TO YOU ON AN “AS IS” AND “AS AVAILABLE” BASIS AND Juup DOES NOT GUARANTEE, WARRANT OR REPRESENT THAT THE SOFTWARE SHALL MEET YOUR REQUIREMENTS OR THAT YOUR USE, OPERATION OR RESULTS OF USE OF THE SOFTWARE SHALL BE UNINTERRUPTED, COMPLETE, RELIABLE, ACCURATE, CURRENT, ERROR-FREE, FREE OF COMPUTER VIRUSES OR OTHERWISE SECURE. YOU ASSUME THE ENTIRE RISK OF DOWNLOADING, INSTALLING, COPYING, OPERATING, USING AND/OR DISTRIBUTING THE SOFTWARE.
+
+16.	LIMITATIONS OF LIABILITY: YOU UNDERSTAND, ACKNOWLEDGE AND AGREE THAT TO THE FULLEST EXTENT PERMISSIBLE BY LAW, NEITHER Juup NOR ITS PARENT, SUBSIDIARIES, AFFILIATES, THEIR RESPECTIVE SUCCESSORS AND ASSIGNS, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, LICENSORS, REPRESENTATIVES, ADVERTISERS, BUSINESS AND PROMOTIONAL PARTNERS, OPERATIONAL SERVICE PROVIDERS, SUPPLIERS, RESELLERS AND CONTRACTORS SHALL, UNDER ANY CIRCUMSTANCES, BE RESPONSIBLE OR LIABLE FOR ANY CLAIM, LOSS OR DAMAGE, OF ANY KIND, DIRECT OR INDIRECT, INCLUDING, WITHOUT LIMITATION, ANY AND ALL COMPENSATORY, CONSEQUENTIAL, INCIDENTAL, DIRECT, INDIRECT, SPECIAL, EXEMPLARY OR PUNITIVE DAMAGES, IN CONNECTION WITH OR ARISING FROM ANY USE OF THE SOFTWARE OR OTHERWISE IN CONNECTION WITH THIS EULA.  YOU FURTHER ACKNOWLEDGE AND AGREE YOUR SOLE RIGHT AND EXCLUSIVE REMEDY FOR ANY LOSS OR DAMAGE ASSOCIATED WITH THE SOFTWARE OR THIS EULA, EVEN IF YOU CLAIM THAT SUCH REMEDY FAILS OF ITS ESSENTIAL PURPOSE, SHALL BE TO HAVE COFFEECUP, UPON WRITTEN NOTICE FROM YOU, ATTEMPT TO REPAIR, CORRECT OR REPLACE THE SOFTWARE. IF REPAIR, CORRECTION OR REPLACEMENT IS NOT REASONABLY COMMERCIALLY PRACTICABLE IN THE SOLE AND ABSOLUTE DISCRETION OF COFFEECUP, EITHER YOU OR COFFEECUP SHALL HAVE THE RIGHT TO TERMINATE AND DISCONTINUE YOUR USE OF THE SOFTWARE.SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF CERTAIN WARRANTIES OR CERTAIN LIMITATIONS ON DAMAGES AND REMEDIES. ACCORDINGLY, SOME OF THE EXCLUSIONS AND LIMITATIONS DESCRIBED IN THIS EULA MAY NOT APPLY TO YOU.
+
+17.	INDEMNIFICATION: You agree to defend Juup, its parent, subsidiaries, affiliates and/or their respective successors and assigns, officers, directors, employees, agents, licensors, representatives, advertisers, business and promotional partners, operational service providers, suppliers, resellers and contractors (the “Juup Indemnified Parties”) against any and all claims, demands and/or actions and indemnify and hold the CoffeeCup Indemnified Parties harmless from and against any and all losses, damages, costs and expenses (including reasonable attorneys’ fees), resulting from any breach or violation of this EULA, infringement, misappropriation or any violation of the rights of any other party, violation or noncompliance with any law or regulation, the breach or violation of any term or condition of your Agreement with us, any use, alteration or export of the Software or otherwise in connection with this EULA. We reserve the right to assume, at our expense, the exclusive defense and control of any claims or actions and all negotiations for settlement or compromise, and you agree to fully cooperate with us upon our request.
+
+18.	EXPORT RESTRICTIONS: Juup may be subject to certain export restrictions of the United States Government. If you are (a) in a country to which export from the United States is restricted for anti-terrorism reasons, or a national of any such country, wherever located, (b) in a country to which the United States has embargoed or restricted the export of goods or services, or a national of any such country, wherever located, or (c) a person or entity who has been prohibited from participating in United States export transactions by any agency of the United States Government, then you may not install, download, access, use, or license our Software. By accepting this License, you warrant and represent to Juup that (1) you do not match the criteria set forth in (a), (b), or (c) above, (2) that you will not export or reexport the Software to any country, person, or entity subject to U.S. export restrictions, including those persons and entities that match the criteria set forth in (a), (b), or (c) above, and (3) that neither the United States Bureau of Industry and Security, nor any other U.S. federal agency, has suspended, revoked, or denied your export privileges.
+
+19.	U.S. GOVERNMENT RESTRICTED RIGHTS: The Software licensed hereunder is provided with ‘RESTRICTED RIGHTS’ applicable to private and public licenses alike. Without limiting the foregoing, any use, duplication, modification, reproduction, operation, performance, release or disclosure thereof by the U.S. Government is subject to restrictions as set forth in this EULA and as provided in DFARS 227.7202-1(a) and 227.7202-3(a) (1995), DFARS 252.227-7013 (c)(1)(ii)(OCT 1988), FAR 12.212(a)(1995), FAR 52.227-19, or FAR 52.227-14, as applicable. Manufacturer: CoffeeCup Software, Inc., 1905 Woodstock Rd, Ste 2250, Roswell, GA 30075 USA
+
+20.	GOVERNING LAW AND INTERPRETATION: This EULA and all disputes, claims, actions, suits or other proceedings arising hereunder shall be governed by, and construed in accordance with, the substantive law of the State of Florida applicable to contracts wholly made and to be performed within the State of Florida. You agree to irrevocably submit to the sole and exclusive jurisdiction of the courts of Florida and the Federal courts situated in Palm Beach County, Florida. You further irrevocably consent to the exercise of personal jurisdiction by such courts and waive any right to plead, claim or allege that Florida is an inconvenient forum. No amendment, modification, waiver or discharge of any provision of this EULA shall be valid unless made in writing and signed by an authorized representative of Juup. No failure or delay by Juup to exercise any right or enforce any obligation shall impair or be construed as a waiver or on-going waiver of that or any or other right or power, unless made in writing and signed by Juup. If any provision of this EULA is held to be illegal, invalid or unenforceable, the remaining provisions of this EULA shall be unimpaired and remain in full force and effect.
+
+
+
+
+YOU ACKNOWLEDGE THAT YOU HAVE READ THE ENTIRE AGREEMENT, UNDERSTAND IT, ACKNOWLEDGE YOU ARE BOUND BY IT AND AGREE TO FULLY COMPLY WITH ALL OF ITS TERMS AND CONDITIONS.
+
+</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="vhZ-0M-nWu" secondAttribute="trailing" id="183-nY-co3"/>
+                            <constraint firstItem="vhZ-0M-nWu" firstAttribute="bottom" secondItem="kwO-A0-H5f" secondAttribute="top" id="RoY-Va-ePc"/>
+                            <constraint firstItem="vhZ-0M-nWu" firstAttribute="top" secondItem="zub-nF-mw5" secondAttribute="bottom" id="mSL-FU-rPt"/>
+                            <constraint firstItem="vhZ-0M-nWu" firstAttribute="leading" secondItem="3uL-eK-6FV" secondAttribute="leading" id="rpq-1B-eQf"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="EULAField" destination="vhZ-0M-nWu" id="gFx-Qa-kA9"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ld1-7E-jWu" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4234" y="-1358"/>
         </scene>
     </scenes>
 </document>

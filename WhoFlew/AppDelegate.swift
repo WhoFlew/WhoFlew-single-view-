@@ -15,8 +15,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    
+    var statusBarSize: CGSize!
+    var navBarSize: CGSize!
+
+    
+    //checkHere
+    //find out how to get these defaults
+    //var navBarSize: CGSize!
+    //var statusBarSize: CGSize!
+    
+    
+    
     let allColorsArray =  [
-        UIColor.whiteColor(),
+        UIColor.clearColor(),
         UIColor(red: 58.0/255.0, green: 179.0/255.0, blue: 255.0/255.0, alpha: 1.0), //colorSkyCrisp
         UIColor(red: 251.0/255.0, green: 65.0/255.0, blue: 74.0/255.0, alpha: 1.0), //colorMelodRed
         UIColor(red: 92.0/255.0, green: 1, blue: 102.0/255.0, alpha: 1.0), //colorFroggertGreen
@@ -58,13 +70,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     
+    //settings that restrict number of codeNames created
     
+
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
+        
+
         
         //check here
         self.networkSignal = true
         
+
         
         
         //set up parse with id and key

@@ -12,7 +12,7 @@ import Foundation
 class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
 
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-    
+    let utilities = Utilities()
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -31,6 +31,14 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     @IBOutlet weak var label_ThinBorder: UILabel!
     
 
+    //text messages
+    var messages = [(String)]()
+    //Ints correspond to order which users paired
+    var usersOrder = [(Int)]()
+    
+    
+    //order of this user
+    var userOrder: Int = 1
     
     
     var codeName: String = "PiGone"
@@ -70,13 +78,6 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         //self.textView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.baseView_Send.setTranslatesAutoresizingMaskIntoConstraints(false)
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardDidShowNotification, object: nil)
-
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardWillHideNotification, object: nil)
-
     }
     
 
@@ -85,10 +86,19 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
+        
+    
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardDidShowNotification, object: nil)
+        
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardWillHideNotification, object: nil)
+        
+        
+        
         //set the codeName as the title on the top Nav bar
         self.title = self.codeName
-        
-        
         
 
         //cover label will turn red when network is not available
@@ -103,7 +113,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             
             
             //changes back to original
-            self.delay(6.0, closure: { () -> () in
+            self.utilities.delay(6.0, closure: { () -> () in
                 self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[1]
                 self.label_Cover.text = "tap to write"
             })
@@ -111,6 +121,10 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
    
 
+        
+        self.getMessages()
+        self.tableView.reloadData()
+        
        
         
         //scrolls tableView to show the last message in view
@@ -119,9 +133,72 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         
         
-        self.tableView.reloadData()
+        
         
     }
+    
+    
+    
+    
+    
+    
+    
+    func getMessages() {
+        
+        for x in [2,2,1,1,2,2,1,2,2,1,1,2,2,2] {
+            self.messages.append("hey whats up")
+            self.usersOrder.append(x)
+        }
+    }
+    
+    
+    
+    
+    
+    @IBAction func pressedSend(sender: AnyObject) {
+        
+        let textInput: String = self.textView.text
+        self.textView.text = ""
+
+        if !textInput.isEmpty {
+            self.messages.append(textInput)
+            self.usersOrder.append(self.userOrder)
+            
+            self.tableView.reloadData()
+            
+            //scrolls tableView to show the last message in view
+            var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+            self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+            
+            
+            
+            
+
+        }
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -133,7 +210,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return self.messages.count
     }
     
     
@@ -141,25 +218,25 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         if let cell: MessageTableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForMessages") as? MessageTableViewCell {
             
+            var order = self.usersOrder[indexPath.row]
   
-            if indexPath.row % 2 == 0 {
- 
+            if self.userOrder == order {
                 
-                cell.leftBar.backgroundColor = UIColor.redColor()
-            
-                cell.rightBar.backgroundColor = UIColor.clearColor()
+                cell.rightBar.backgroundColor = self.appDelegate.allColorsArray[self.userOrder]
                 
-
-                cell.labelMessage.text = "new message is very long and the very long message could mean that things are very long"
-                cell.labelMessage.textAlignment = NSTextAlignment.Left
-            }
-            else {
                 cell.leftBar.backgroundColor = UIColor.clearColor()
 
-                cell.rightBar.backgroundColor = UIColor.redColor()
-                
-                cell.labelMessage.text = "new message"
+                cell.labelMessage.text = self.messages[indexPath.row]
                 cell.labelMessage.textAlignment = NSTextAlignment.Right
+            }
+                
+            else {
+                cell.leftBar.backgroundColor = self.appDelegate.allColorsArray[order]
+                
+                cell.rightBar.backgroundColor = UIColor.clearColor()
+                
+                cell.labelMessage.text = self.messages[indexPath.row]
+                cell.labelMessage.textAlignment = NSTextAlignment.Left
             }
 
             return cell
@@ -173,6 +250,11 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     }
 
     
+    
+    
+    
+    
+
     
     
     
@@ -208,7 +290,15 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             self.kbIsUp = true
             
         }
-        
+        else {
+            //scrolls tableView to show the last message in view
+            var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+            self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+            
+            
+            
+            self.tableView.reloadData()
+        }
         
     }
     
@@ -266,7 +356,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             self.label_Cover.text = "weak network signal"
             
             
-            self.delay(6.0, closure: { () -> () in
+            self.utilities.delay(6.0, closure: { () -> () in
                 self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[1]
                 self.label_Cover.text = "tap to write"
             })
@@ -286,14 +376,12 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     
-    func delay(delay:Double, closure:()->()) {
-        dispatch_after(
-            dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(delay * Double(NSEC_PER_SEC))
-            ),
-            dispatch_get_main_queue(), closure)
-    }
+    
+    
+    
+
+    
+    
     
     
     
@@ -303,6 +391,23 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+    }
+    
+    
     
 
     /*

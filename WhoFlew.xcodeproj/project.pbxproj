@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C2806DF1C04DDD70072CFC2 /* EULAViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2806DE1C04DDD70072CFC2 /* EULAViewController.swift */; };
+		9C2806E31C04E12D0072CFC2 /* MessageComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2806E21C04E12D0072CFC2 /* MessageComposer.swift */; };
 		9C2BFE021BFE3E9900CFE6D8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2BFE011BFE3E9900CFE6D8 /* Utilities.swift */; };
 		9C2BFE061BFE443400CFE6D8 /* Pair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2BFE051BFE443400CFE6D8 /* Pair.swift */; };
 		9C2BFE081BFE444900CFE6D8 /* Generate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2BFE071BFE444900CFE6D8 /* Generate.swift */; };
@@ -26,13 +28,14 @@
 		9C2BFE441BFE47C400CFE6D8 /* Parse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE411BFE47C400CFE6D8 /* Parse.framework */; };
 		9C2BFE451BFE47C400CFE6D8 /* ParseUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE421BFE47C400CFE6D8 /* ParseUI.framework */; };
 		9C4297541BF92788002058F7 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4297531BF92787002058F7 /* MessageTableViewCell.swift */; };
+		9C5B72D41C0243FE008A838D /* TimeSlideCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B72D31C0243FE008A838D /* TimeSlideCollectionViewCell.swift */; };
+		9C5B72D61C0244D4008A838D /* InboxVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B72D51C0244D4008A838D /* InboxVC.swift */; };
 		9C8A4B0C1BF795C90016FBDD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B0B1BF795C90016FBDD /* AppDelegate.swift */; };
 		9C8A4B0F1BF795C90016FBDD /* WhoFlew.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B0D1BF795C90016FBDD /* WhoFlew.xcdatamodeld */; };
 		9C8A4B141BF795C90016FBDD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C8A4B121BF795C90016FBDD /* Main.storyboard */; };
 		9C8A4B161BF795C90016FBDD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C8A4B151BF795C90016FBDD /* Images.xcassets */; };
 		9C8A4B191BF795C90016FBDD /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C8A4B171BF795C90016FBDD /* LaunchScreen.xib */; };
 		9C8A4B251BF795C90016FBDD /* WhoFlewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B241BF795C90016FBDD /* WhoFlewTests.swift */; };
-		9C8A4B2F1BF7969E0016FBDD /* InboxVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B2E1BF7969E0016FBDD /* InboxVC.swift */; };
 		9C8A4B311BF7B8100016FBDD /* DialogueVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B301BF7B8100016FBDD /* DialogueVC.swift */; };
 		9C8A4B351BF7DBBE0016FBDD /* SettingsTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */; };
 /* End PBXBuildFile section */
@@ -48,6 +51,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9C2806DE1C04DDD70072CFC2 /* EULAViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EULAViewController.swift; sourceTree = "<group>"; };
+		9C2806E21C04E12D0072CFC2 /* MessageComposer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageComposer.swift; sourceTree = "<group>"; };
 		9C2BFE011BFE3E9900CFE6D8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		9C2BFE051BFE443400CFE6D8 /* Pair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Pair.swift; path = ../Pair.swift; sourceTree = "<group>"; };
 		9C2BFE071BFE444900CFE6D8 /* Generate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Generate.swift; path = ../Generate.swift; sourceTree = "<group>"; };
@@ -67,6 +72,8 @@
 		9C2BFE411BFE47C400CFE6D8 /* Parse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Parse.framework; sourceTree = "<group>"; };
 		9C2BFE421BFE47C400CFE6D8 /* ParseUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseUI.framework; sourceTree = "<group>"; };
 		9C4297531BF92787002058F7 /* MessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
+		9C5B72D31C0243FE008A838D /* TimeSlideCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeSlideCollectionViewCell.swift; sourceTree = "<group>"; };
+		9C5B72D51C0244D4008A838D /* InboxVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = InboxVC.swift; path = ../InboxVC.swift; sourceTree = "<group>"; };
 		9C8A4B061BF795C90016FBDD /* WhoFlew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhoFlew.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C8A4B0A1BF795C90016FBDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C8A4B0B1BF795C90016FBDD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -77,7 +84,6 @@
 		9C8A4B1E1BF795C90016FBDD /* WhoFlewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhoFlewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C8A4B231BF795C90016FBDD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C8A4B241BF795C90016FBDD /* WhoFlewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoFlewTests.swift; sourceTree = "<group>"; };
-		9C8A4B2E1BF7969E0016FBDD /* InboxVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboxVC.swift; sourceTree = "<group>"; };
 		9C8A4B301BF7B8100016FBDD /* DialogueVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DialogueVC.swift; sourceTree = "<group>"; };
 		9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -171,9 +177,10 @@
 				9C8A4B0B1BF795C90016FBDD /* AppDelegate.swift */,
 				9C8A4B121BF795C90016FBDD /* Main.storyboard */,
 				9C8A4B0D1BF795C90016FBDD /* WhoFlew.xcdatamodeld */,
-				9C8A4B2E1BF7969E0016FBDD /* InboxVC.swift */,
+				9C5B72D51C0244D4008A838D /* InboxVC.swift */,
+				9C5B72D31C0243FE008A838D /* TimeSlideCollectionViewCell.swift */,
 				9C4297551BF92908002058F7 /* Dialogue Table */,
-				9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */,
+				9CB4349C1C06250A00CB4D71 /* Settings */,
 				9C8A4B151BF795C90016FBDD /* Images.xcassets */,
 				9C8A4B171BF795C90016FBDD /* LaunchScreen.xib */,
 				9C2BFE071BFE444900CFE6D8 /* Generate.swift */,
@@ -207,6 +214,16 @@
 				9C8A4B231BF795C90016FBDD /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9CB4349C1C06250A00CB4D71 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */,
+				9C2806DE1C04DDD70072CFC2 /* EULAViewController.swift */,
+				9C2806E21C04E12D0072CFC2 /* MessageComposer.swift */,
+			);
+			name = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -315,10 +332,13 @@
 				9C2BFE081BFE444900CFE6D8 /* Generate.swift in Sources */,
 				9C8A4B351BF7DBBE0016FBDD /* SettingsTableVC.swift in Sources */,
 				9C2BFE021BFE3E9900CFE6D8 /* Utilities.swift in Sources */,
-				9C8A4B2F1BF7969E0016FBDD /* InboxVC.swift in Sources */,
+				9C2806DF1C04DDD70072CFC2 /* EULAViewController.swift in Sources */,
+				9C2806E31C04E12D0072CFC2 /* MessageComposer.swift in Sources */,
+				9C5B72D61C0244D4008A838D /* InboxVC.swift in Sources */,
 				9C8A4B0F1BF795C90016FBDD /* WhoFlew.xcdatamodeld in Sources */,
 				9C8A4B0C1BF795C90016FBDD /* AppDelegate.swift in Sources */,
 				9C4297541BF92788002058F7 /* MessageTableViewCell.swift in Sources */,
+				9C5B72D41C0243FE008A838D /* TimeSlideCollectionViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

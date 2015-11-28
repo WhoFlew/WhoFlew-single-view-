@@ -67,20 +67,20 @@ class SettingsTableVC: UITableViewController {
         //"Details"
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Infinite Connection: Enter Suffix"
                 return cell
             }
             
             else if indexPath.row == 1 {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Inbox Size Limit: 10"
                 return cell
             }
                 
             else {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "NickNames Coming Soon!"
                 return cell
                 
@@ -96,35 +96,35 @@ class SettingsTableVC: UITableViewController {
         else {
             if indexPath.row == 0 {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Share WhoFlew"
                 return cell
             }
             
             else if indexPath.row == 1 {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Share your Opinion"
                 return cell
             }
                 
             else if indexPath.row == 2 {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Contact Us"
                 return cell
             }
                 
             else if indexPath.row == 3 {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Rules"
                 return cell
             }
                 
             else {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Terms of Service"
                 return cell
 
@@ -153,7 +153,7 @@ class SettingsTableVC: UITableViewController {
                 
                 let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
 
-                var alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user.", preferredStyle: UIAlertControllerStyle.Alert)
+                let alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user.", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(dismiss)
                 
                 self.presentViewController(alert, animated: true, completion: nil)
@@ -176,7 +176,7 @@ class SettingsTableVC: UITableViewController {
                 let messageComposer = MessageComposer()
                 if (messageComposer.canSendText()) {
                     // Obtain a configured MFMessageComposeViewController
-                    var messageComposeVC = messageComposer.configuredMessageComposeViewController()
+                    let messageComposeVC = messageComposer.configuredMessageComposeViewController()
                     
                     // Present the configured MFMessageComposeViewController instance
                     // Note that the dismissal of the VC will be handled by the messageComposer instance,

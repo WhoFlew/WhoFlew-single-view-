@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     
-    var userName: String = UIDevice.currentDevice().identifierForVendor.UUIDString
+    var userName: String = UIDevice.currentDevice().identifierForVendor!.UUIDString
     let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
     
     
@@ -143,7 +143,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     lazy var applicationDocumentsDirectory: NSURL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.atomm.WhoFlew" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
+        return urls[urls.count-1] 
     }()
 
     lazy var managedObjectModel: NSManagedObjectModel = {
@@ -159,7 +159,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("WhoFlew.sqlite")
         var error: NSError? = nil
         var failureReason = "There was an error creating or loading the application's saved data."
-        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil, error: &error) == nil {
+        do {
+            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
+        } catch var error1 as NSError {
+            error = error1
             coordinator = nil
             // Report any error we got.
             var dict = [String: AnyObject]()
@@ -171,6 +174,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             NSLog("Unresolved error \(error), \(error!.userInfo)")
             abort()
+        } catch {
+            fatalError()
         }
         
         return coordinator
@@ -192,11 +197,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func saveContext () {
         if let moc = self.managedObjectContext {
             var error: NSError? = nil
-            if moc.hasChanges && !moc.save(&error) {
-                // Replace this implementation with code to handle the error appropriately.
-                // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                NSLog("Unresolved error \(error), \(error!.userInfo)")
-                abort()
+            if moc.hasChanges {
+                do {
+                    try moc.save()
+                } catch let error1 as NSError {
+                    error = error1
+                    // Replace this implementation with code to handle the error appropriately.
+                    // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                    NSLog("Unresolved error \(error), \(error!.userInfo)")
+                    abort()
+                }
             }
         }
     }
@@ -215,14 +225,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         let context: NSManagedObjectContext = self.managedObjectContext!
-        let connectionCodes = NSEntityDescription.entityForName("Connections", inManagedObjectContext: context)
+
         
-        var request = NSFetchRequest(entityName: "Connections")
+        let request = NSFetchRequest(entityName: "Connections")
         request.returnsObjectsAsFaults = false
         request.sortDescriptors = [NSSortDescriptor(key: "endAt", ascending: true)]
         
-        var errorRequest: NSError?
-        var results: NSArray = context.executeFetchRequest(request, error: &errorRequest)!
+        
+        let results: NSArray = try! context.executeFetchRequest(request)
         
         
         self.userCodes.removeAll(keepCapacity: false)
@@ -232,19 +242,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         for code in results {
             
             
-            var codeId = code.valueForKey("codeId") as! String
-            var codeName = code.valueForKey("codeName") as! String
+            let codeId = code.valueForKey("codeId") as! String
+            let codeName = code.valueForKey("codeName") as! String
             
-            var endAt = code.valueForKey("endAt") as? NSDate
-            var shouldDelete = code.valueForKey("shouldDelete") as? Bool
+            let endAt = code.valueForKey("endAt") as? NSDate
+            let shouldDelete = code.valueForKey("shouldDelete") as? Bool
 
-            var userMade = code.valueForKey("userOrder") as! Int
+            let userMade = code.valueForKey("userOrder") as! Int
             
 
             
             if !endAt!.timeIntervalSinceNow.isSignMinus &&
                 !shouldDelete! &&
-                    !contains(self.shouldDeleteThese, codeId) {
+                    !self.shouldDeleteThese.contains(codeId) {
                     
                 self.userCodes.append(code as! (NSManagedObject))
                 

@@ -57,9 +57,9 @@ class Alerts {
         }
         
         
-        var alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
         
-        var partWays = UIAlertAction(title: actionTitle, style: UIAlertActionStyle.Destructive, handler: nil)
+        let partWays = UIAlertAction(title: actionTitle, style: UIAlertActionStyle.Destructive, handler: nil)
         alertController.addAction(partWays)
         
         return alertController
@@ -77,7 +77,7 @@ class Alerts {
         
         //code must be at least 4 charas
         if alertType == "short" {
-            var alert = UIAlertController(title: "☝️too short", message: "4 character minimum", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "☝️too short", message: "4 character minimum", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -87,7 +87,7 @@ class Alerts {
             
             //code cannot be longer than 17 charas
         else if alertType == "long" {
-            var alert = UIAlertController(title: "☝️too long", message: "17 character maximum", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "☝️too long", message: "17 character maximum", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -96,7 +96,7 @@ class Alerts {
             
             //when pairing, textfield must have text
         else if alertType == "enterCodeToPair" {
-            var alert = UIAlertController(title: "☝️enter code", message: "codeNames are used to connect users", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "☝️enter code", message: "codeNames are used to connect users", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -105,7 +105,7 @@ class Alerts {
             
             //invalid punctuation used
         else if alertType == "punc" {
-            var alert = UIAlertController(title: "☝️invalid punctuation", message: "try emoticons", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "☝️invalid punctuation", message: "try emoticons", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -114,7 +114,7 @@ class Alerts {
             
             //no internet
         else if alertType == "network" {
-            var alert = UIAlertController(title: "☝️weak signal", message: "connect to a stronger network signal", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "☝️weak signal", message: "connect to a stronger network signal", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -122,7 +122,7 @@ class Alerts {
             
             
         else if alertType == "pairSucess" {
-            var alert = UIAlertController(title: "Users Paired", message: "", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "Users Paired", message: "", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -131,7 +131,7 @@ class Alerts {
             
             
         else if alertType == "inboxLimit" {
-            var alert = UIAlertController(title: "☝️", message: "Sorry, your inbox is at capacity.", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "☝️", message: "Sorry, your inbox is at capacity.", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert
@@ -140,7 +140,7 @@ class Alerts {
             
             
         else {
-            var alert = UIAlertController(title: "PiGone", message: "meet our mascot, PiGone the carrier pigeon", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "PiGone", message: "meet our mascot, PiGone the carrier pigeon", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(dismiss)
             
             return alert

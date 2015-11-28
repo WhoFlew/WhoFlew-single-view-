@@ -86,7 +86,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.textView.autocorrectionType = UITextAutocorrectionType.Yes
         
         //self.textView.setTranslatesAutoresizingMaskIntoConstraints(false)
-        self.baseView_Send.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.baseView_Send.translatesAutoresizingMaskIntoConstraints = false
         
     }
     
@@ -147,7 +147,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
        
         
         //scrolls tableView to show the last message in view
-        var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+        let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
         self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
         
         
@@ -162,11 +162,11 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     func queryConnectionClass() {
-        var error: NSError?
+    
         self.queryConnection.whereKey("objectId", equalTo: self.codeId)
-        self.queryConnection.findObjectsInBackgroundWithBlock({ (userCodes: [(AnyObject)]?, errorFind: NSError?) -> Void in
+        self.queryConnection.findObjectsInBackgroundWithBlock { (userCodes, error) -> Void in
             
-            if let error = errorFind {
+            if let error = error {
                 
                 if error.code == 100 {
                     self.appDelegate.networkSignal = false
@@ -177,7 +177,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 
                 
             }
-            else if let userCodes = userCodes as? [(PFObject)] {
+            else if let userCodes = userCodes {
                 self.appDelegate.networkSignal = true
                 
                 self.messageArray.removeAll(keepCapacity: false)
@@ -197,9 +197,9 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                     //self.deleteInterval = thisCode.valueForKey("deleteInterval")
                     
   
-                    if contains(self.pairs, self.appDelegate.userName) {
+                    if self.pairs.contains(self.appDelegate.userName) {
                         
-                        var order = find(self.pairs, self.appDelegate.userName)! + 1
+                        let order = self.pairs.indexOf(self.appDelegate.userName)! + 1
                         self.userOrder = order
                     
                     }
@@ -217,7 +217,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             }
             
             
-        })
+        }
     }
     
     
@@ -231,9 +231,9 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.queryMessages.orderByAscending("createdAt")
         
         
-        self.queryMessages.findObjectsInBackgroundWithBlock { (messages: [AnyObject]?, errorSorting: NSError?) -> Void in
+        self.queryMessages.findObjectsInBackgroundWithBlock { (messages, errorPoint) -> Void in
             
-            if let error = errorSorting {
+            if let error = errorPoint {
                 
                 if error.code == 100 {
                     self.appDelegate.networkSignal = false
@@ -246,17 +246,15 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 
             else if let messages = messages {
                 self.appDelegate.networkSignal = true
-                
-                var ordersFromQuery = self.orderArray
-                var messagesFromQuery = self.messageArray
+
                 
                 self.orderArray.removeAll(keepCapacity: false)
                 self.messageArray.removeAll(keepCapacity: false)
                 
                 for text in messages {
                     
-                    var whoFlew = text.valueForKey("order") as! Int
-                    var message = text.valueForKey("message") as! String
+                    let whoFlew = text.valueForKey("order") as! Int
+                    let message = text.valueForKey("message") as! String
                     
                     self.orderArray.append(whoFlew)
                     self.messageArray.append(message)
@@ -286,10 +284,10 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             self.tableView.reloadData()
             
             //scrolls tableView to show the last message in view
-            var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+            let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
             self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
             
-            var messageTable = PFObject(className: "Messages")
+            let messageTable = PFObject(className: "Messages")
             
             messageTable.setValue(self.userOrder, forKey: "order")
             messageTable.setValue(textInput, forKey: "message")
@@ -377,7 +375,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         if let cell: MessageTableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForMessages") as? MessageTableViewCell {
             
-            var order = self.orderArray[indexPath.row]
+            let order = self.orderArray[indexPath.row]
   
             if self.userOrder == order {
                 
@@ -435,7 +433,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     func keyBoardShow(notification: NSNotification) {
         
         var info: Dictionary = notification.userInfo!
-        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
+        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
         
         
         if !self.kbIsUp {
@@ -457,7 +455,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         }
         else {
             //scrolls tableView to show the last message in view
-            var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+            let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
             self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
             
             
@@ -472,7 +470,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     func keyBoardHide(notification: NSNotification) {
         
         var info: Dictionary = notification.userInfo!
-        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
+        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
         
         
         if !self.textView.hasText() {
@@ -512,7 +510,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     func textViewShouldBeginEditing(textView: UITextView) -> Bool {
         
 
-        if contains(self.appDelegate.noReply, self.codeName) {
+        if self.appDelegate.noReply.contains(self.codeName) {
             return false
         }
         

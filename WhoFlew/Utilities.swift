@@ -25,17 +25,17 @@ class Utilities {
         var spaceCount: Int = 0
         
         
-        for chara in input {
+        for chara in input.characters {
             if chara == " " {
                 spaceCount++
             }
-            if contains(invalidCharacters, chara) {
+            if invalidCharacters.contains(chara) {
                 return true
             }
         }
         
         
-        if Double(spaceCount / count(input)) >= 0.34 {
+        if Double(spaceCount / input.characters.count) >= 0.34 {
             return true
         }
         else {
@@ -48,24 +48,13 @@ class Utilities {
     
     
     func durationToString(endingDate: NSDate) -> String {
-        var currentDateUtc = NSDate()
-        
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ"
-        dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
-        
-        var dateString = dateFormatter.stringFromDate(NSDate())
-        
-        if let dateValue = dateFormatter.dateFromString(dateString) {
-            currentDateUtc = dateValue
-            
-        }
-        
-        var interval = endingDate.timeIntervalSinceNow
-        var intervalMinutes: Double = (interval % 3600.0)/60.0
-        var intervalHours: Double = interval / 3600.0
-        var intervalWeeks: Double = interval / self.weekSeconds
-        
+
+        let interval = endingDate.timeIntervalSinceNow
+        let intervalMinutes: Double = (interval % 3600.0)/60.0
+        let intervalHours: Double = interval / 3600.0
+        let intervalDays: Double = intervalHours / 24
+        let intervalWeeks: Double = interval / self.weekSeconds
+        let intervalMonth: Double = interval / self.weekSeconds * (31 / 7)
         
         
         if interval <= 0   {
@@ -74,15 +63,18 @@ class Utilities {
         else if intervalWeeks >= 8 {
             return "∞"
         }
+        else if intervalMonth == 1 {
+            return "1 month"
+        }
         else if (intervalWeeks >= 1) && (intervalWeeks < 3) {
-            var weeks = (Int(floor(intervalWeeks)))
-            var days = (Int(floor(intervalWeeks%7)))
+            let weeks = (Int(floor(intervalWeeks)))
+            let days = (Int(floor(intervalDays % 7)))
             return "w: \(weeks) d: \(days)"
         }
             
         else if (intervalHours >= 24) && (intervalHours < 168){
-            var days = (Int(floor(intervalHours/24)))
-            var hours = (Int(floor(intervalHours%24)))
+            let days = (Int(floor(intervalDays)))
+            let hours = (Int(floor(intervalHours % 24)))
             return "d: \(days) h: \(hours)"
         }
             

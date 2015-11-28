@@ -44,23 +44,18 @@ class GenerateCode {
     func createCode(suffix: String, infiniteConnection: Bool) -> [(String)] {
         
         var newCodeOptions = [(String)]()
-        var newCode: String = ""
-        
-        //random digits to be created if code exists
-        var randomDigit: Int
-        var randomDigit2: Int
-        var randomDigit3: Int
+
         
         //initial random digits added to suffix
-        var firstRandom = Int(arc4random_uniform(10))
-        var secondRandom = Int(arc4random_uniform(10))
-        var thirdRandom = Int(arc4random_uniform(10))
+        let firstRandom = Int(arc4random_uniform(10))
+        let secondRandom = Int(arc4random_uniform(10))
+        let thirdRandom = Int(arc4random_uniform(10))
         
         
-        var randomAlpha = Int(arc4random_uniform(UInt32(self.alphabet.count)))
+        let randomAlpha = Int(arc4random_uniform(UInt32(self.alphabet.count)))
         
-        var randomEmoji = Int(arc4random_uniform(UInt32(self.emoticons.count)))
-        var randomEmoji2 = Int(arc4random_uniform(UInt32(self.emoticons.count)))
+        let randomEmoji = Int(arc4random_uniform(UInt32(self.emoticons.count)))
+        let randomEmoji2 = Int(arc4random_uniform(UInt32(self.emoticons.count)))
         
         
         newCodeOptions.append(self.newCodeOptions("\(suffix)\(firstRandom)\(secondRandom)", suffix: suffix))
@@ -79,25 +74,25 @@ class GenerateCode {
         var attempts: Int = 0
         
         
-        while contains(self.allCodes, newCode) {
+        while self.allCodes.contains(newCode) {
             
-            var newCodeArray = Array(newCode)
-            while newCodeArray != Array(suffix) {
+            var newCodeArray = Array(newCode.characters)
+            while newCodeArray != Array(suffix.characters) {
                 newCodeArray.removeLast()
                 newCode = String(newCodeArray)
                 
-                if !contains(self.allCodes, newCode) && count(newCode) >= 4 {
+                if !self.allCodes.contains(newCode) && newCode.characters.count >= 4 {
 
                 }
             }
             
             
-            var randomDigit = Int(arc4random_uniform(10))
-            var randomDigit2 = Int(arc4random_uniform(10))
-            var randomDigit3 = Int(arc4random_uniform(10))
+            let randomDigit = Int(arc4random_uniform(10))
+            let randomDigit2 = Int(arc4random_uniform(10))
+            let randomDigit3 = Int(arc4random_uniform(10))
             
-            var randomEmoji = Int(arc4random_uniform(UInt32(self.emoticons.count)))
-            var randomEmoji2 = Int(arc4random_uniform(UInt32(self.emoticons.count)))
+            let randomEmoji = Int(arc4random_uniform(UInt32(self.emoticons.count)))
+            let randomEmoji2 = Int(arc4random_uniform(UInt32(self.emoticons.count)))
             
             if attempts > 1300 {
                 newCode = "\(newCode)\(randomDigit)\(self.emoticons[randomEmoji2])\(randomDigit3)\(self.emoticons[randomEmoji])"
@@ -140,17 +135,16 @@ class GenerateCode {
         
         var randomCodeOptions = [(String)]()
         
-        var randomDigitA = Int(arc4random_uniform(UInt32(self.adjectives.count)))
-        var randomDigitN = Int(arc4random_uniform(UInt32(self.nouns.count)))
+        let randomDigitA = Int(arc4random_uniform(UInt32(self.adjectives.count)))
+        let randomDigitN = Int(arc4random_uniform(UInt32(self.nouns.count)))
         
-        var randomDigitA2 = Int(arc4random_uniform(UInt32(self.adjectives.count)))
-        var randomDigitN2 = Int(arc4random_uniform(UInt32(self.nouns.count)))
+        let randomDigitA2 = Int(arc4random_uniform(UInt32(self.adjectives.count)))
+        let randomDigitN2 = Int(arc4random_uniform(UInt32(self.nouns.count)))
         
-        var randomDigitA3 = Int(arc4random_uniform(UInt32(self.adjectives.count)))
-        var randomDigitAA3 = Int(arc4random_uniform(UInt32(self.adjectives.count)))
-        var randomDigitN3 = Int(arc4random_uniform(UInt32(self.nouns.count)))
-        
-        var newCodeName: String = "\(self.adjectives[randomDigitA]) \(self.nouns[randomDigitN])"
+        let randomDigitA3 = Int(arc4random_uniform(UInt32(self.adjectives.count)))
+        let randomDigitAA3 = Int(arc4random_uniform(UInt32(self.adjectives.count)))
+        let randomDigitN3 = Int(arc4random_uniform(UInt32(self.nouns.count)))
+
 
         randomCodeOptions.append(self.randomCodeOptions("\(self.adjectives[randomDigitA]) \(self.nouns[randomDigitN])"))
         randomCodeOptions.append(self.randomCodeOptions("\(self.adjectives[randomDigitA2]) \(self.nouns[randomDigitN2])"))
@@ -163,12 +157,12 @@ class GenerateCode {
     
     func randomCodeOptions(newCodeName: String) -> String {
         
-        var newCode: String = newCodeName
         var attempts: Int = 0
+        var newCode: String = newCodeName
         
-        while contains(self.allCodes, newCodeName) {
-            var randomDigitA = Int(arc4random_uniform(UInt32(self.adjectives.count)))
-            var randomDigitN = Int(arc4random_uniform(UInt32(self.nouns.count)))
+        while self.allCodes.contains(newCodeName) {
+            let randomDigitA = Int(arc4random_uniform(UInt32(self.adjectives.count)))
+            let randomDigitN = Int(arc4random_uniform(UInt32(self.nouns.count)))
             
             newCode = "\(self.adjectives[randomDigitA]) \(self.nouns[randomDigitN])"
             
@@ -177,7 +171,7 @@ class GenerateCode {
             }
             attempts++
         }
-        return newCodeName
+        return newCode
     }
     
 

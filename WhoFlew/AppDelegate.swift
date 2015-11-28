@@ -15,16 +15,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    //dictionary for simple types, used to store settings
+    let dialoguesSaved = NSUserDefaults.standardUserDefaults()
+    
+    
+    
+    
+    //parse server id and key
+    let idDialogue: String = "0tsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
+    let keyDialogue: String = "dRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
+    
+    //true: when connection to the internet appears to be present (has yet to fail)
+    //false: when internet/parse connection has failed
+    var networkSignal: Bool = false
+    
+    
+    
+    var userName: String = UIDevice.currentDevice().identifierForVendor.UUIDString
+    let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
+    
+    
     
     var statusBarSize: CGSize!
     var navBarSize: CGSize!
-
-    
-    //checkHere
-    //find out how to get these defaults
-    //var navBarSize: CGSize!
-    //var statusBarSize: CGSize!
-    
     
     
     let allColorsArray =  [
@@ -43,50 +56,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIColor.brownColor()
     ]
     
-    
-    //parse server id and key
-    let idDialogue: String = "0tsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
-    let keyDialogue: String = "dRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
-    
-    var userName: String = UIDevice.currentDevice().identifierForVendor.UUIDString
-    let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
+
     
     
-    
-    //true: when connection to the internet appears to be present (has yet to fail)
-    //false: when internet/parse connection has failed
-    var networkSignal: Bool = false
+
     
     
     //codes that dont let users send messages
     var noReply = ["welcome!"]
+    var codesDeleted = [(String)]()
+    var shouldDeleteThese = [(String)]()
+
+
     
+    //objects in core data, stores details of conversation (endAt, shouldDelete, userOrder)
+    var userCodes = [(NSManagedObject)]()
+    var connections = ["Welcome!": (messageArray: ["Introducing WhoFlew", "Ya"], orderArray: [0,0], pairs: [String]())]
+    //[String(): (messageArray: [String](), orderArray: [Int](), pairs: [String]())]
+
     
-    //query loads codeNames
-    //will populate the inbox
-    var arrayOfCodeNames = ["here", "purple", "monkey"]
-    //[(String)]()
-    
-    
-    
-    
-    //settings that restrict number of codeNames created
-    
+    //used to query all codes in the inbox
+    var codeIds = [(String)]()
 
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        
-        
-
-        
-        //check here
-        self.networkSignal = true
         
 
         
         
         //set up parse with id and key
         Parse.setApplicationId(self.idDialogue, clientKey: self.keyDialogue)
+        
+        //read and save settings, like pairAttempts
+        self.readSettings()
+        
+        //get user info form data
+        self.fetchFromCoreData()
+        
+        
+        
+        
+        //check here
+        self.networkSignal = true
+        
+
         
         return true
     }
@@ -115,6 +128,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.saveContext()
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // MARK: - Core Data stack
 
     lazy var applicationDocumentsDirectory: NSURL = {
@@ -177,6 +200,101 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func fetchFromCoreData() {
+        
+        
+        let context: NSManagedObjectContext = self.managedObjectContext!
+        let connectionCodes = NSEntityDescription.entityForName("Connections", inManagedObjectContext: context)
+        
+        var request = NSFetchRequest(entityName: "Connections")
+        request.returnsObjectsAsFaults = false
+        request.sortDescriptors = [NSSortDescriptor(key: "endAt", ascending: true)]
+        
+        var errorRequest: NSError?
+        var results: NSArray = context.executeFetchRequest(request, error: &errorRequest)!
+        
+        
+        self.userCodes.removeAll(keepCapacity: false)
+        self.connections.removeAll(keepCapacity: false)
+        
+
+        for code in results {
+            
+            
+            var codeId = code.valueForKey("codeId") as! String
+            var codeName = code.valueForKey("codeName") as! String
+            
+            var endAt = code.valueForKey("endAt") as? NSDate
+            var shouldDelete = code.valueForKey("shouldDelete") as? Bool
+
+            var userMade = code.valueForKey("userOrder") as! Int
+            
+
+            
+            if !endAt!.timeIntervalSinceNow.isSignMinus &&
+                !shouldDelete! &&
+                    !contains(self.shouldDeleteThese, codeId) {
+                    
+                self.userCodes.append(code as! (NSManagedObject))
+                
+                self.codeIds.append(codeId)
+            }
+            else {
+                self.codesDeleted.append(codeName)
+                self.managedObjectContext!.deleteObject(code as! NSManagedObject)
+            }
+            
+
+
+            if userMade == 1 {
+                //self.userMadeCount++
+            }
+            
+            
+
+        }
+        self.saveContext()
+        self.saveSettings()
+
+        
+        self.shouldDeleteThese.removeAll(keepCapacity: false)
+    }
+    
+    
+    
+    
+    
+    
+    func saveSettings() {
+        
+
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    func readSettings() {
+        
+        
+
+        
+    }
+    
 
 }
 

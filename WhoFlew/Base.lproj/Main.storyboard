@@ -45,7 +45,7 @@
         <!--InboxVC-->
         <scene sceneID="0mF-7k-rME">
             <objects>
-                <viewController id="5wo-Fg-lsv" customClass="InboxVC" customModule="WhoFlew" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="5wo-Fg-lsv" customClass="InboxVC" customModule="WhoFlew" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="15D-ue-hQp"/>
                         <viewControllerLayoutGuide type="bottom" id="sxR-XA-epl"/>
@@ -55,7 +55,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="59Z-Gc-jBG">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="544"/>
+                                <rect key="frame" x="0.0" y="64" width="600" height="480"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cellForInbox" textLabel="sNP-Xy-Ufz" detailTextLabel="LDb-G9-i3z" rowHeight="45" style="IBUITableViewCellStyleValue1" id="dBG-mL-oqg">
@@ -102,7 +102,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="GeK-z0-m5l" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="4KE-bG-2VF"/>
-                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="top" secondItem="0di-1S-T0a" secondAttribute="top" id="Ok3-UM-Inh"/>
+                            <constraint firstItem="59Z-Gc-jBG" firstAttribute="top" secondItem="0di-1S-T0a" secondAttribute="top" constant="64" id="Ok3-UM-Inh"/>
                             <constraint firstItem="59Z-Gc-jBG" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="iO1-6m-7lY"/>
                             <constraint firstAttribute="bottom" secondItem="59Z-Gc-jBG" secondAttribute="bottom" constant="56" id="j0E-1w-f5D"/>
                             <constraint firstItem="sxR-XA-epl" firstAttribute="top" secondItem="GeK-z0-m5l" secondAttribute="bottom" id="nGe-75-tG3"/>

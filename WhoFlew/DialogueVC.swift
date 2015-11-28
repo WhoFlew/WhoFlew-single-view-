@@ -8,6 +8,8 @@
 
 import UIKit
 import Foundation
+import Parse
+import Bolts
 
 class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
 
@@ -31,19 +33,27 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     @IBOutlet weak var label_ThinBorder: UILabel!
     
 
-    //text messages
-    var messages = [(String)]()
-    //Ints correspond to order which users paired
-    var usersOrder = [(Int)]()
     
+    var messageArray = [(String)]()
+    var orderArray = [(Int)]()
+
     
     //order of this user
     var userOrder: Int = 1
-    
+    var pairs = [(String)]()
     
     var codeName: String = "PiGone"
-    var codeID: String = "PiGone"
+    var codeId: String = "PiGone"
 
+    
+    var queryConnection = PFQuery(className: "Connection")
+    var queryMessages = PFQuery(className: "Messages")
+    
+    
+    var canSendMessage: Bool = false
+    //indicator color waits to change color until message sent
+    var numMessagesWaiting: Int = 0
+    
     
     
     override func viewDidLoad() {
@@ -121,8 +131,17 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
    
 
+        self.messageArray.removeAll(keepCapacity: false)
+        self.orderArray.removeAll(keepCapacity: false)
         
-        self.getMessages()
+        self.messageArray = ["verifying access..."]
+        self.orderArray = [0]
+        
+
+        self.queryConnection.cancel()
+        self.queryMessages.cancel()
+        
+        self.queryConnectionClass()
         self.tableView.reloadData()
         
        
@@ -135,20 +154,118 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         
         
+        
+        
+    }
+    
+    
+    
+    
+    func queryConnectionClass() {
+        var error: NSError?
+        self.queryConnection.whereKey("objectId", equalTo: self.codeId)
+        self.queryConnection.findObjectsInBackgroundWithBlock({ (userCodes: [(AnyObject)]?, errorFind: NSError?) -> Void in
+            
+            if let error = errorFind {
+                
+                if error.code == 100 {
+                    self.appDelegate.networkSignal = false
+                }
+                else {
+                    self.appDelegate.networkSignal = true
+                }
+                
+                
+            }
+            else if let userCodes = userCodes as? [(PFObject)] {
+                self.appDelegate.networkSignal = true
+                
+                self.messageArray.removeAll(keepCapacity: false)
+                self.orderArray.removeAll(keepCapacity: false)
+                
+                if userCodes.count == 1 {
+                    self.canSendMessage = true
+                    
+                    let thisCode = userCodes.first!
+                    
+                    
+                    self.pairs = thisCode.valueForKey("pairs") as! [(String)]
+                    
+                    
+                    //self.orderArray = thisCode.valueForKey("order")
+                    //self.sizeLimit = thisCode.valueForKey("sizeLimit")
+                    //self.deleteInterval = thisCode.valueForKey("deleteInterval")
+                    
+  
+                    if contains(self.pairs, self.appDelegate.userName) {
+                        
+                        var order = find(self.pairs, self.appDelegate.userName)! + 1
+                        self.userOrder = order
+                    
+                    }
+                    else {
+                        //self.partWaysAlert(false)
+                    }
+                    
+                    
+                    
+                    
+                    self.queryMessagesClass()
+                    
+                }
+                
+            }
+            
+            
+        })
     }
     
     
     
     
     
-    
-    
-    func getMessages() {
+    func queryMessagesClass() {
         
-        for x in [2,2,1,1,2,2,1,2,2,1,1,2,2,2] {
-            self.messages.append("hey whats up")
-            self.usersOrder.append(x)
+        self.queryMessages.whereKey("codeId", equalTo: self.codeId)
+        self.queryMessages.limit = 620
+        self.queryMessages.orderByAscending("createdAt")
+        
+        
+        self.queryMessages.findObjectsInBackgroundWithBlock { (messages: [AnyObject]?, errorSorting: NSError?) -> Void in
+            
+            if let error = errorSorting {
+                
+                if error.code == 100 {
+                    self.appDelegate.networkSignal = false
+                }
+                else {
+                    self.appDelegate.networkSignal = true
+                }
+                
+            }
+                
+            else if let messages = messages {
+                self.appDelegate.networkSignal = true
+                
+                var ordersFromQuery = self.orderArray
+                var messagesFromQuery = self.messageArray
+                
+                self.orderArray.removeAll(keepCapacity: false)
+                self.messageArray.removeAll(keepCapacity: false)
+                
+                for text in messages {
+                    
+                    var whoFlew = text.valueForKey("order") as! Int
+                    var message = text.valueForKey("message") as! String
+                    
+                    self.orderArray.append(whoFlew)
+                    self.messageArray.append(message)
+                }
+                
+                self.tableView.reloadData()
+            }
         }
+        
     }
     
     
@@ -159,10 +276,12 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         let textInput: String = self.textView.text
         self.textView.text = ""
+        
+        self.numMessagesWaiting++
 
         if !textInput.isEmpty {
-            self.messages.append(textInput)
-            self.usersOrder.append(self.userOrder)
+            self.messageArray.append(textInput)
+            self.orderArray.append(self.userOrder)
             
             self.tableView.reloadData()
             
@@ -170,7 +289,47 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             var lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
             self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
             
+            var messageTable = PFObject(className: "Messages")
             
+            messageTable.setValue(self.userOrder, forKey: "order")
+            messageTable.setValue(textInput, forKey: "message")
+            messageTable.setValue(self.codeId, forKey: "codeId")
+
+            
+            messageTable.saveInBackgroundWithBlock { (sucess: Bool, errorSave: NSError?) -> Void in
+                
+                if let error = errorSave {
+                    
+                    if error.code == 100 {
+                        self.appDelegate.networkSignal = false
+                    }
+                    else {
+                        self.appDelegate.networkSignal = true
+                    }
+                    self.messageArray.removeLast()
+                    self.messageArray.removeLast()
+                }
+                    
+                else if sucess {
+                    self.appDelegate.networkSignal = true
+                    //array indicating whether or not inbox should allow conversation to be cleared
+
+                    
+                }
+                else {
+                    //unclear what would fall to this case
+                    //but it would logically follow to remove the message
+                    self.messageArray.removeLast()
+                    self.messageArray.removeLast()
+                }
+                
+                //self.messageSending = false
+                self.numMessagesWaiting--
+                //checkHere
+                
+                
+                self.tableView.reloadData()
+            }
             
             
 
@@ -210,7 +369,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.messages.count
+        return self.messageArray.count
     }
     
     
@@ -218,7 +377,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         if let cell: MessageTableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForMessages") as? MessageTableViewCell {
             
-            var order = self.usersOrder[indexPath.row]
+            var order = self.orderArray[indexPath.row]
   
             if self.userOrder == order {
                 
@@ -226,7 +385,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 
                 cell.leftBar.backgroundColor = UIColor.clearColor()
 
-                cell.labelMessage.text = self.messages[indexPath.row]
+                cell.labelMessage.text = self.messageArray[indexPath.row]
                 cell.labelMessage.textAlignment = NSTextAlignment.Right
             }
                 
@@ -235,8 +394,14 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 
                 cell.rightBar.backgroundColor = UIColor.clearColor()
                 
-                cell.labelMessage.text = self.messages[indexPath.row]
+                cell.labelMessage.text = self.messageArray[indexPath.row]
                 cell.labelMessage.textAlignment = NSTextAlignment.Left
+            }
+            
+            
+            //right indicator bar is clear until message is sent
+            if (self.orderArray.count - self.numMessagesWaiting) <= indexPath.row {
+                cell.rightBar.backgroundColor = UIColor.whiteColor()
             }
 
             return cell
@@ -351,7 +516,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             return false
         }
         
-        else if self.appDelegate.networkSignal {
+        else if !self.appDelegate.networkSignal {
             self.label_Cover.backgroundColor = self.appDelegate.allColorsArray[2]
             self.label_Cover.text = "weak network signal"
             
@@ -405,6 +570,9 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+        
+        self.queryConnection.cancel()
+        self.queryMessages.cancel()
     }
     
     

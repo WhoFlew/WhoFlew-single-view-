@@ -9,7 +9,11 @@
 import Foundation
 
 class Utilities {
+    //used to turn duration to string value
+    let weekSeconds: Double = 604800.0
     
+    //codes must be paired within 4 days
+    let fourDaysInSeconds = 4 * 24.0 * 60 * 60 * 60
     
     //true: contains any of the following punctuation [",",":",";","\\",">","%"]
     //true: more than 1/3 of codeName are spaces
@@ -40,6 +44,67 @@ class Utilities {
         
     }
 
+    
+    
+    
+    func durationToString(endingDate: NSDate) -> String {
+        var currentDateUtc = NSDate()
+        
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ"
+        dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
+        
+        var dateString = dateFormatter.stringFromDate(NSDate())
+        
+        if let dateValue = dateFormatter.dateFromString(dateString) {
+            currentDateUtc = dateValue
+            
+        }
+        
+        var interval = endingDate.timeIntervalSinceNow
+        var intervalMinutes: Double = (interval % 3600.0)/60.0
+        var intervalHours: Double = interval / 3600.0
+        var intervalWeeks: Double = interval / self.weekSeconds
+        
+        
+        
+        if interval <= 0   {
+            return "expired"
+        }
+        else if intervalWeeks >= 8 {
+            return "∞"
+        }
+        else if (intervalWeeks >= 1) && (intervalWeeks < 3) {
+            var weeks = (Int(floor(intervalWeeks)))
+            var days = (Int(floor(intervalWeeks%7)))
+            return "w: \(weeks) d: \(days)"
+        }
+            
+        else if (intervalHours >= 24) && (intervalHours < 168){
+            var days = (Int(floor(intervalHours/24)))
+            var hours = (Int(floor(intervalHours%24)))
+            return "d: \(days) h: \(hours)"
+        }
+            
+        else if (intervalHours < 24) && (intervalHours > 1) {
+            return "h: \(Int(floor(intervalHours))) m: \(Int(floor(intervalMinutes)))"
+        }
+            
+        else if (intervalMinutes <= 60) && (intervalMinutes > 0){
+            return "minutes: \(Int(floor(intervalMinutes)))"
+        }
+            
+        else {
+            return "???"
+        }
+        
+        
+    }
+    
+    
+    
+    
+    
     func delay(delay:Double, closure:()->()) {
         dispatch_after(
             dispatch_time(

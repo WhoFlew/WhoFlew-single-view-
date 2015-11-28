@@ -7,16 +7,25 @@
 //
 
 import UIKit
+import Foundation
+import Parse
+import Bolts
+import CoreData
 
 
 
 
 
-class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UITextFieldDelegate {
+
+class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UITextFieldDelegate {
     
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     let utilities = Utilities()
+    var alerts = Alerts()
     
+    var generate = GenerateCode()
+    
+    var genView: GenView!
     
     
     //populates scroll view: timeSlide
@@ -33,21 +42,35 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     var navItem_Cancel: UIBarButtonItem!
     var baseViewIsPair: Bool = true
     
-    
-    
-    var add: UIBarButtonItem!
-    
+
+
 
     @IBOutlet weak var baseView: UIView!
     var baseView_Gen: UIView!
     
-    
     //time expiration time limit
-    lazy var collectionView: UICollectionView = self.setCollectionView()
+    var collectionView: UICollectionView!
     var label_Time: UILabel!
-
     
-    //@IBOutlet weak var button_Go: UIButton!
+
+    var tableView: UITableView!
+    var button_Gen: UIView = UIButton.buttonWithType(UIButtonType.ContactAdd) as! UIView
+    
+    
+    //pickerview with 3 componenets (hour, day, min)
+    var pickerView: UIPickerView!
+    //triggers pickerview to replace collectionView and cover textField
+    var button_OtherTimes: UIButton!
+    //3 labels inside (hour, day, min)
+    var labelView_PickerTime: UIView!
+    
+    
+    
+    var activityWheel = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.WhiteLarge)
+    //overlay for when user clears conversation
+    var clearedSuccessLabel = UILabel()
+    
+
     
     
     //textField just for appearance at bottom
@@ -55,53 +78,48 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     @IBOutlet weak var textField: UITextField!
     var kbSize: CGSize = CGSize()
     var kbIsUp: Bool = false
+    var shouldBecomeFirstResponder: Bool = false
+    var shouldAdjustFirstResponder: Bool = true
+    
+    
+    
+    
+    
+    
+    
+    
+    var codeName: String = "PiGone"
+    
+
+    var newCodeOptions = ["codeName","options","here"]
+    var newCodeSelected: Bool = false
 
     
     
-    var activityWheel = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.WhiteLarge)
+    //query Connection class to pair with specfic code
+    var queryConnection = PFQuery(className: "Connection")
     
+    //query Connection class to find all live codes, generate new code
+    var queryAllCodes = PFQuery(className: "Connection")
     
-    
-    //time limit for code, in minutes
-    var duration: Double = 20.0
-    
-    
-
-    
-    //set layout and frame for collection view
-    //used for time slide
-    func setCollectionView() -> UICollectionView {
-        
-
-        var frame = CGRect(x: 0.0, y: 59.0, width: (self.view.frame.size.width), height: 30)
-    
-        
-        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 0, left: -(self.view.frame.width % 75.0), bottom: 0, right: 0)
-        layout.itemSize = CGSize(width: 75.0, height: 30)
-        layout.scrollDirection = UICollectionViewScrollDirection.Horizontal
-        layout.minimumInteritemSpacing = 0.0
-        
-        var collectionView = UICollectionView(frame: frame, collectionViewLayout: layout)
-        collectionView.contentSize = CGSize(width: (self.durationLimits.count * 100), height: 30)
-        return collectionView
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    //checks all codes by id
+    var queryCheck = PFQuery(className: "Connection")
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        
+        
+        self.inboxTable.delegate = self
+        self.inboxTable.dataSource = self
+        self.inboxTable.tag = 0
+        
+        self.textField.delegate = self
+        self.textField.autocorrectionType = UITextAutocorrectionType.No
 
-        //set values in appDelegate for sizez of 
+        
+        //set values in appDelegate for sizez of
         //navBar and status bar
         if let navController: UINavigationController = self.navigationController {
             
@@ -111,52 +129,12 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
 
-    
-        
-        self.inboxTable.delegate = self
-        self.inboxTable.dataSource = self
-        
-        
-        
-        
-        
-        
-        
-        //collectionView: timeSlide
-        self.collectionView.dataSource = self
-        self.collectionView.delegate = self
-        
-        self.collectionView.registerClass(TimeSlideCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
-        
-        self.collectionView.backgroundColor = self.appDelegate.allColorsArray[2]
-        self.collectionView.scrollEnabled = true
-        
-        var tapGesture = UITapGestureRecognizer(target: self, action: "tapScrollView:")
-        self.collectionView.addGestureRecognizer(tapGesture)
-        
-        
-        
-        
-        
-
-        
-        //textField for generate/pair doesnt use auto correct
-        self.textField.delegate = self
-        self.textField.tag = 0
-        self.textField.placeholder = "Pair Code"
-        self.textField.autocorrectionType = UITextAutocorrectionType.No
-  
-
-        
-
-        
-      
-        
         
         //button: plus system symbol, changes view at bottom
         //when pressed: from pair -> generate
         self.navItem_Generate = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: "toggleRightNavItem:")
         
+     
         
         //button: x system symbol, changes view at bottom
         //when pressed: from anything -> pair, resign first responder and return
@@ -168,55 +146,124 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //nav bar starts as generate tab
         self.navigationItem.rightBarButtonItem = self.navItem_Generate
 
-    
         
+        
+        
+        //tableFrame = pickerFrame (except for y value)
+        let tableFrame = CGRect(x: 0.0, y: self.view.frame.height, width: self.view.frame.width, height: (44.0 * 3))
+        
+        //new codes in tableView
+        self.tableView = UITableView(frame: tableFrame)
+        self.tableView.delegate = self
+        self.tableView.dataSource = self
+        self.tableView.tag = 1
+
+        
+        self.tableView.backgroundColor = self.appDelegate.allColorsArray[1]
+        self.tableView.headerViewForSection(0)?.textLabel.textAlignment = NSTextAlignment.Center
+        
+        
+        
+        
+        self.genView = GenView(frame: self.view.frame)
+
+        
+        
+        //self.textField, self.button_Gen, self.collectionView, self.label_Time, self.baseView_Gen, self.button_OtherTimes
+        self.genView.setBaseViewContent()
+        //self.button_Gen: right corner, triggers self.tapForRandom
+        //self.textField: in self.baseView
+        //self.baseView_Gen: time duration extention
+        //self.collectionView: slider view for duration
+        
+        
+        
+        //sets up:
+        //self.pickerView, self.labelView_PickerTime
+        self.genView.setPickerViewContent()
+        //pickerView: 3 componenents
+        //labelView: 3 labels (days, hours, time)
+        //placed above pickerview, aligned with respective component
+        
+        
+        
+        //base View for generate
+        self.baseView_Gen = self.genView.genView
+
+        
+        //scroll view for duration, label indicates set time
+        self.collectionView = self.genView.collectionView
+        self.label_Time = self.genView.label_Time
+        
+        
+        //triggers pickerview to replace collectionView and cover textField
+        self.button_OtherTimes = self.genView.button_OtherTimes
+        
+        
+        //pickerview with 3 componenets (hour, day, min), label indicates time for each component
+        self.pickerView = self.genView.pickerView
+        self.labelView_PickerTime = self.genView.labelView_PickerTime
+        
+        
+
+        //button_Gen shows tableView with options for new code
+        self.button_Gen = self.genView.button_Gen
 
         
 
-        //offsets the y Origin of the view so it is underneath nav bar
-        var offSetY: CGFloat = (self.appDelegate.navBarSize.height + self.appDelegate.statusBarSize.height) - (180 + self.view.frame.height)
-        self.baseView_Gen = UIView(frame: CGRect(x: 0.0, y: offSetY, width: self.view.frame.width, height: 180 + self.view.frame.height))
-        self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[1]
-        
-        
-        
-        
-        
-        
-        //indicates time from scrollView
-        var labelFrame = CGRect(x: 0.0, y: 0, width: self.view.frame.width, height: 60)
-        self.label_Time = UILabel(frame: labelFrame)
 
-        self.label_Time.text = "set expiration"
-        self.label_Time.numberOfLines = 2
-        self.label_Time.lineBreakMode = NSLineBreakMode.ByWordWrapping
-        self.label_Time.textAlignment = NSTextAlignment.Center
-        
-        self.label_Time.backgroundColor = self.appDelegate.allColorsArray[1]
         
         
+        self.button_Gen.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "tapForRandom:"))
         
 
+        
+        
+        //shows pickerview with three time componenents
+        self.button_OtherTimes.addTarget(self, action: "showTimePicker", forControlEvents: UIControlEvents.TouchDown)
+        
+        
         
         
         
         //loading wheel
+        self.activityWheel.center.x = self.view.center.x
+        self.activityWheel.center.y = self.textField.center.y
         self.baseView.addSubview(self.activityWheel)
         self.activityWheel.hidden = true
-        
 
         
-        //label that indicates time
+        
+        //plus button on baseview, random code only
+        self.button_Gen.center.y = self.textField.center.y
+        self.baseView.addSubview(self.button_Gen)
+        
+
+
+        //collection view scroll with label
         self.baseView_Gen.addSubview(self.label_Time)
-        
-        
-        //time slide extension, hides for pair
         self.baseView_Gen.addSubview(self.collectionView)
-
-
-
         
-        self.view.addSubview(baseView_Gen)
+        
+        //toggles between two time views
+        self.baseView_Gen.addSubview(self.button_OtherTimes)
+        
+    
+        //pickerview time with label
+
+        self.baseView_Gen.addSubview(self.pickerView)
+        self.baseView_Gen.addSubview(self.labelView_PickerTime)
+
+
+        self.view.addSubview(self.baseView_Gen)
+        self.view.addSubview(self.tableView)
+        
+        
+        
+        
+        self.pickerView.hidden = true
+        self.labelView_PickerTime.hidden = true
+        self.tableView.hidden = true
     }
 
 
@@ -236,16 +283,84 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //keyboard down
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
         
+        
+        
+        if self.appDelegate.codesDeleted.count >= 1 {
+            let alertController = self.alerts.theseCodesPartedWays(self.appDelegate.codesDeleted)
+            
+            self.presentViewController(alertController, animated: true, completion: { () -> Void in
+                self.appDelegate.codesDeleted.removeAll(keepCapacity: false)
+            })
+        }
+        
+        
 
+        
+        
+        if self.appDelegate.codeIds.count > 0 {
+            
+            self.queryCheck.whereKey("objectId", containedIn: self.appDelegate.codeIds)
+        
+            self.queryCheck.findObjectsInBackgroundWithBlock { (aliveCodes: [AnyObject]?, errorQuery: NSError?) -> Void in
+                if let error = errorQuery {
+                    
+                    if error.code == 100 {
+                        self.appDelegate.networkSignal = false
+                    }
+                    else {
+                        self.appDelegate.networkSignal = true
+                    }
+                }
+                
+                else if let aliveCodes = aliveCodes as? [(PFObject)] {
+                    self.appDelegate.networkSignal = true
+                    
+                    if aliveCodes.count != self.appDelegate.codeIds.count {
+                        
+                        var aliveCodesId = [(String)]()
+                        for code in aliveCodes {
+                            aliveCodesId.append(code.valueForKey("objectId") as! String)
+                        }
+                        
+                        let set = Set(self.appDelegate.codeIds)
+                        let deadIds = set.subtract(aliveCodesId)
+                        self.appDelegate.shouldDeleteThese = Array(deadIds)
+                    
+                        self.appDelegate.fetchFromCoreData()
+                        self.inboxTable.reloadData()
+                        
+                        
+                        if self.appDelegate.codesDeleted.count >= 1 {
+                            let alertController = self.alerts.theseCodesPartedWays(self.appDelegate.codesDeleted)
+                            
+                            self.presentViewController(alertController, animated: true, completion: { () -> Void in
+                                self.appDelegate.codesDeleted.removeAll(keepCapacity: false)
+                            })
+                        }
+                        
+                        
+                    }
+                }
+
+            }
+        }
+        
+        
+        
+        
+
+        
+        
+        
+        
+        self.inboxTable.reloadData()
     }
     
     
     
     
     
-    
-    
-    
+
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
         
@@ -253,12 +368,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             let nextVC = segue.destinationViewController as! DialogueVC
             let sender = sender as! InboxVC
             
-            
-            var index: Int = 0
-            
-            var range: Range = 0...self.appDelegate.arrayOfCodeNames.count
-            if contains(Array(range), index) {
-                nextVC.codeName = self.appDelegate.arrayOfCodeNames[index]
+        
+            var indexPath = self.inboxTable.indexPathForSelectedRow()!
+            var range: Range = 0...self.appDelegate.userCodes.count
+            if contains(Array(range), indexPath.row) {
+                nextVC.codeName = self.appDelegate.userCodes[indexPath.row].valueForKey("codeName") as! String
+                nextVC.codeId = self.appDelegate.userCodes[indexPath.row].valueForKey("codeId") as! String
+                
+                self.inboxTable.deselectRowAtIndexPath(indexPath, animated: false)
             }
         }
     }
@@ -285,6 +402,9 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //tag 1: cancel button. stop image, sysmtem icon
         if sender.tag == 1 {
             self.textField.text = ""
+            
+            self.queryConnection.cancel()
+            self.queryAllCodes.cancel()
         }
         
         
@@ -293,7 +413,403 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //pair with code
         //tag 1: cancel button. stop image, sysmtem icon
         if !self.baseViewIsPair || sender.tag == 1 {
+            self.resetViewsTo("PairView", duration: 1.0)
+        }
+            
+            
+        //inbox limit
+        else if self.appDelegate.userCodes.count >= 10 {
+            self.presentViewController(self.alerts.alertsByType("inboxLimit"), animated: true, completion: nil)
+        }
+            
+        
+        //generate new code
+        else {
+            self.resetViewsTo("GenerateBase", duration: 0.67)
+        }
+    }
+    
+    
+    
+
+ 
+    
+    
+    
+    
+
+    
+    
+    
+    func tapForRandom(recognizer: UITapGestureRecognizer) {
+        
+        if !self.baseViewIsPair &&
+            !self.textField.hasText() &&
+                !self.textField.isFirstResponder() {
+                    
+                    self.newCodeOptions = ["","...loading...",""]
+                    self.tableView.reloadData()
+                    
+                    
+                    self.shouldAdjustFirstResponder = false
+                    self.resetViewsTo("NewCode", duration: 1.2)
+
+        }
+        
+        
+        
+    }
+    
+    
+    
+    
+
+    
+    func pairWithCode(codeName: String) {
+        
+        
+        self.activityWheel.startAnimating()
+        self.activityWheel.hidden = false
+        
+        
+        self.textField.hidden = true
+        self.button_Gen.hidden = true
+        
+        
+        self.shouldAdjustFirstResponder = true
+        if self.textField.isFirstResponder() {
+            self.textField.resignFirstResponder()
+        }
+        
+        
+
+
+        self.queryConnection.whereKey("code", equalTo: codeName)
+        self.queryConnection.whereKey("locked", equalTo: false)
+        self.queryConnection.whereKey("createdAt", lessThan: NSDate().dateByAddingTimeInterval(self.utilities.fourDaysInSeconds))
+        self.queryConnection.whereKey("endAt", greaterThan: NSDate())
+        
+        var errorPoint: NSError?
+        var codeObject = self.queryConnection.findObjects(&errorPoint)
+        if let error = errorPoint {
+            
+            //error.code 100 means no internet
+            if error.code == 100 {
+                self.appDelegate.networkSignal = false
+            }
+            //object could not be found
+            //else if error.code == 101 {}
+            
+            else {
+                self.appDelegate.networkSignal = true
+            }
+            
+        }
+        else if let code = codeObject {
+            
+            if code.count == 1 {
+                var pairCode = code.first as! PFObject
+                
+                //get the information for that code: date, objectId, users paired
+                let codeId = (pairCode.objectId as String?)!
+                
+                
+                let size: Int = pairCode.valueForKey("size") as! Int
+                let endAt: NSDate = pairCode.valueForKey("endAt") as! NSDate
+                var pairs: [(String)] = pairCode.valueForKey("pairs") as! [(String)]
+                
+                
+                
+                if size > pairs.count {
+                    
+                    //add this user to pairs, set value as new object
+                    pairs.append(self.appDelegate.userName)
+                    pairCode.setValue(pairs, forKey: "pairs")
+                    
+                    if pairs.count == size {
+                        pairCode.setValue(true, forKey: "locked")
+                    }
+                    
+                    
+                    pairCode.saveInBackgroundWithBlock({ (success, error: NSError?) -> Void in
+                        
+                        if let error = error {
+                            if error.code == 100 {
+                                self.appDelegate.networkSignal = false
+                            }
+                            else {
+                                self.appDelegate.networkSignal = true
+                            }
+                        }
+                        //saved to parse
+                        else if success {
+                            self.appDelegate.networkSignal = true
+                            
+                            
+                            //save details to core data
+                            let context: NSManagedObjectContext = self.appDelegate.managedObjectContext!
+                            let newConnection = NSEntityDescription.insertNewObjectForEntityForName("Connections", inManagedObjectContext: context) as! NSManagedObject
+                            
+                            newConnection.setValue(codeName, forKey: "codeName")
+                            newConnection.setValue(codeId, forKey: "codeId")
+                            newConnection.setValue(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0), forKey: "endAt")
+                            newConnection.setValue(pairs.count, forKey: "userOrder")
+                            
+                            newConnection.setValue(false, forKey: "shouldDelete")
+                            newConnection.setValue(NSDate(), forKey: "lastRead")
+                            
+                            var errorPoint: NSError?
+                            context.save(&errorPoint)
+                            if let error = errorPoint {
+                                
+                            }
+                            else {
+                                //present pair alert
+                                self.presentViewController(self.alerts.alertsByType("pairSucess"), animated: true, completion: { () -> Void in
+                                    
+                                    self.resetViewsTo("PairView", duration: 1.0)
+                                    self.appDelegate.fetchFromCoreData()
+                                    self.inboxTable.reloadData()
+                                })
+                                
+                            }
+                            
+                        }
+                    })
+
+                }
+            }
+                
+                
+
+        }
+        else {
+        }
+        
+
+       
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func generateCode(codeName: String) {
+        self.newCodeSelected = false
+        
+        var allCodeNames = [(String)]()
+
+        self.queryAllCodes.whereKey("locked", equalTo: false)
+        self.queryAllCodes.whereKey("createdAt", lessThan: NSDate().dateByAddingTimeInterval(self.utilities.fourDaysInSeconds))
+        self.queryAllCodes.whereKey("endAt", greaterThan: NSDate().dateByAddingTimeInterval(5.0 * 60))
+        
+        self.queryAllCodes.limit = 1000
+        self.queryAllCodes.selectKeys(["codeName"])
+        
+        var errorPoint: NSError?
+        var allCodes = queryAllCodes.findObjects(&errorPoint)
+        if let error = errorPoint {
+            
+            //network off line
+            if error.code == 100 {
+                self.appDelegate.networkSignal = false
+                
+                self.label_Time.text = "error"
+                self.newCodeOptions = ["⚠️","check network signal","🙈"]
+                self.tableView.reloadData()
+            }
+            else {
+                self.appDelegate.networkSignal = true
+            }
+            
+        }
+        else if let allCodes = allCodes {
+            self.appDelegate.networkSignal = true
+            
+            for code in allCodes {
+                if let codeName = code.valueForKey("codeName") as? String {
+                    allCodeNames.append(codeName)
+                }
+            }
+            self.generate.allCodes = allCodeNames
+            
+            if codeName.isEmpty {
+                
+                self.newCodeOptions = self.generate.generateCodeName()
+                self.tableView.reloadData()
+                self.tableView.allowsSelection = true
+            }
+                
+            else {
+                self.newCodeOptions = self.generate.createCode(codeName, infiniteConnection: false)
+                self.tableView.reloadData()
+                self.tableView.allowsSelection = true
+            }
+            
+            
+            
+            self.utilities.delay(18.0, closure: { () -> () in
+                
+                if !self.newCodeSelected {
+                    println("delay enacted")
+                    self.resetViewsTo("PairView", duration: 1.2)
+                }
+                
+                
+            })
+            
+        }
+        
+        
+        
+        
+
+
+        
+        
+
+        
+
+
+   
+    }
+    
+    
+    
+    
+    func saveNewCode(codeName: String) {
+        
+        
+        var codeTable = PFObject(className: "Connection")
+        
+        codeTable.setValue(codeName, forKey: "code")
+        codeTable.setValue(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0), forKey: "endAt")
+        codeTable.setValue([self.appDelegate.userName], forKey: "pairs")
+        codeTable.setValue(2, forKey: "size")
+        codeTable.setValue(false, forKey: "locked")
+        
+        
+        //codeTable.setValue(codeName, forKey: "code")
+        //codeTable.setValue(codeName, forKey: "code")
+        //codeTable.setValue(codeName, forKey: "code")
+        
+        
+        //codeTable["dialogue"] = [""]
+        //codeTable["order"] = [0]
+        //codeTable["deleteInterval"] = self.intervalDelete
+        
+        
+
+        codeTable.saveInBackgroundWithBlock({ (success, errorPoint) -> Void in
+            
+            if let error = errorPoint {
+                if error.code == 100 {
+                    self.appDelegate.networkSignal = false
+                }
+                else {
+                    self.appDelegate.networkSignal = true
+                }
+            }
+                
+            else if success {
+                self.appDelegate.networkSignal = true
+                
+                let context: NSManagedObjectContext = self.appDelegate.managedObjectContext!
+                let newConnection = NSEntityDescription.insertNewObjectForEntityForName("Connections", inManagedObjectContext: context) as! NSManagedObject
+                
+                newConnection.setValue(codeName, forKey: "codeName")
+                newConnection.setValue(codeTable.objectId, forKey: "codeId")
+                newConnection.setValue(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0), forKey: "endAt")
+                newConnection.setValue(1, forKey: "userOrder")
+                
+                newConnection.setValue(false, forKey: "shouldDelete")
+                newConnection.setValue(NSDate(), forKey: "lastRead")
+                
+                var errorPoint: NSError?
+                context.save(&errorPoint)
+                if let error = errorPoint {
+
+                }
+                else {
+                    self.appDelegate.fetchFromCoreData()
+                    self.inboxTable.reloadData()
+                    
+                    self.resetViewsTo("PairView", duration: 1.2)
+                    
+                    
+                    //determines which cell is the new code
+                    //acts as a highlight that fades to white
+                    var index: Int = 0
+                    for code in self.appDelegate.userCodes {
+                        var codeName = code.valueForKey("codeName") as! String
+                        
+                        
+                        if contains(self.newCodeOptions, codeName) {
+                            var indexPath = NSIndexPath(forRow: index, inSection: 0)
+                            
+                            var cell = self.inboxTable.cellForRowAtIndexPath(indexPath)
+                            cell!.backgroundColor = self.appDelegate.allColorsArray[1]
+                            
+                            
+                            UITableViewCell.animateWithDuration(6.5, animations: { () -> Void in
+                                cell!.backgroundColor = self.appDelegate.allColorsArray[0]
+                            })
+                            
+                        }
+                        index++
+                    }
+                    
+                    
+                }
+                
+                
+            }
+
+            
+        })
+    }
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func resetViewsTo(displayThis: String, duration: Double) {
+        
+        if displayThis == "PairView" {
             self.baseViewIsPair = true
+            
+            self.pickerView.hidden = true
+            self.labelView_PickerTime.hidden = true
+            self.button_OtherTimes.selected = false
+            
+            self.activityWheel.stopAnimating()
+            self.activityWheel.hidden = true
+            
+            self.textField.hidden = false
+            
+            self.button_Gen.hidden = false
+            
             
             self.navigationItem.setRightBarButtonItem(self.navItem_Generate, animated: false)
             
@@ -303,226 +819,211 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
             
             UIView.animateWithDuration(1.5, animations: { () -> Void in
+                
+                
                 //offsets the y Origin of the view so it is underneath nav bar
                 let offSetY: CGFloat = (self.appDelegate.navBarSize.height + self.appDelegate.statusBarSize.height) - (180 + self.view.frame.height)
                 self.baseView_Gen.frame = CGRect(x: 0.0, y: offSetY, width: self.view.frame.width, height: 180 + self.view.frame.height)
                 
                 
+                
                 let textFieldWidth: CGFloat = (self.view.frame.width - 16.0)
                 self.textField.frame = CGRect(x: 8.0, y: 9.0, width: textFieldWidth, height: self.textField.frame.height)
+                
+
+                
+                //tableFrame = pickerFrame (except for y value)
+                let tableFrameOriginal = CGRect(x: 0.0, y: self.view.frame.height, width: self.view.frame.width, height: (44.0 * 3))
+                
+                //new codes in tableView
+                self.tableView.frame = tableFrameOriginal
+                
+                
+                
+                
+                
+                
                 
                 self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[1]
                 
                 self.baseView.backgroundColor = self.appDelegate.allColorsArray[2]
                 
                 
-                
+
                 self.label_Time.hidden = true
                 self.collectionView.hidden = true
             })
-            
-            
         }
+        
+        
             
             
             
-            //generate new code
-        else {
+            
+            
+        else if displayThis == "GenerateBase" {
             self.baseViewIsPair = false
+
             
             self.navigationItem.setRightBarButtonItem(self.navItem_Cancel, animated: true)
             
             self.textField.placeholder = "Leave blank for random codeName"
             
- 
-
+            self.pickerView.hidden = true
+            self.labelView_PickerTime.hidden = true
             
-            UIView.animateWithDuration(1.5, animations: { () -> Void in
+            self.button_OtherTimes.hidden = false
+            self.button_OtherTimes.selected = false
+            
+            
+            
+            UIView.animateWithDuration(duration, animations: { () -> Void in
+                
+
+                //90.0: baseView_Gen:: height of this view
+                let yOffSet: CGFloat = self.view.frame.height - self.baseView.frame.height - 90 - 1
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: yOffSet, width: self.view.frame.width, height: 90)
+                
+                
+                let textFieldWidth: CGFloat = (self.view.frame.width - 16.0)
+                self.textField.frame = CGRect(x: 8.0, y: 9.0, width: textFieldWidth - 36, height: self.textField.frame.height)
+                
+                
+                //indicates time from scrollView
+                let labelFrame = CGRect(x: 0.0, y: 0, width: self.view.frame.width, height: 60)
+                self.label_Time.frame = labelFrame
+                self.label_Time.text = "set expiration"
+                
                 
                 self.baseView.backgroundColor = self.appDelegate.allColorsArray[1]
-
-                
-                //90.0: baseView_Gen:: height of this view
-                let yOffSet: CGFloat = self.view.frame.size.height - self.baseView.frame.height - 90 - 1
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: yOffSet, width: self.view.frame.width, height: 90)
                 
                 self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[1]
                 
                 
-                let textFieldWidth: CGFloat = (self.view.frame.width - 16.0)
-                self.textField.frame = CGRect(x: 8.0, y: 9.0, width: textFieldWidth - 48, height: self.textField.frame.height)
                 
                 self.label_Time.hidden = false
                 self.collectionView.hidden = false
-            })
-            
-            
-        }
-    }
-    
-    
-    
-    
-    
-    
-    
-    func isValidCode(input: String) -> Bool {
-       
-
-        
-        //if they have no internet connection
-        if !self.appDelegate.networkSignal {
-            self.presentViewController(self.alertsByType("network"), animated: true, completion: nil)
-            return false
-        }
-        
-            
-            
-        else if self.textField.hasText() {
-            
-            //code input must be at least 4
-            if count(input) < 4  {
-                self.presentViewController(self.alertsByType("short"), animated: true, completion: nil)
-                return false
-            }
-        
-                
-            //code input cannot be greater than 17
-            else if count(input) > 17 {
-                self.presentViewController(self.alertsByType("long"), animated: true, completion: nil)
-                return false
-            }
-                
-              
-            //returns false if invalid punctuation used (also rejects too many spaces)
-            else if self.utilities.invalidPunc(input) {
-                self.presentViewController(self.alertsByType("punc"), animated: true, completion: nil)
-                return false
-            }
-
-                
-            //valid codes with text in textField will fall to this clause
-            else {
-                return true
-            }
-            
-        }
-           
-            
-            
-  
-
-            
-
-        //pair input cannot be blank
-        else if self.baseViewIsPair {
-            self.presentViewController(self.alertsByType("enterCodeToPair"), animated: true, completion: nil)
-            return false
-        }
-        
-            
-        //generated codes without text in textField will be random (ie: purple monkey)
-        else {
-            return true
-        }
-
-    }
-    
-    
-    
-
-    
-    
-    func pressedGo(sender: AnyObject) {
-        
-        
-        if self.isValidCode(self.textField.text) {
-            //self.button_Go.hidden = true
-            
-            self.activityWheel.startAnimating()
-            self.activityWheel.hidden = false
-            
-/*
-            
-            if self.button_Go.titleLabel!.text == "Pair" {
-                self.pairWithCode(self.textField.text)
-            }
-            else if self.button_Go.titleLabel!.text == "Generate" {
-                self.generateCode(self.textField.text)
-            }
-            
-*/
-        }
-            
-        //clear textField text is not valid codeName
-        else {
-            self.textField.text = ""
-        }
-
-    }
-    
-    
-    func pairWithCode(codeName: String) {
-        
-        
-        self.resetBaseView()
-    }
-    
-    func generateCode(codeName: String) {
-        
-
-        
-        if codeName.isEmpty {
-            UIView.animateWithDuration(1.4, animations: { () -> Void in
-                
-                //90.0: baseView_Gen:: height of this view
-                //1.0: gap between the two
-                var yPosition: CGFloat = self.view.frame.size.height - self.baseView.frame.height - 270 - 1
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: 270)
                 
                 }, completion: { (completed) -> Void in
-                    if self.textField.isFirstResponder() {
-                        self.textField.resignFirstResponder()
+                    
+                    if completed && self.shouldBecomeFirstResponder && !self.textField.isFirstResponder() {
+                        self.textField.becomeFirstResponder()
+                        self.shouldBecomeFirstResponder = false
                     }
             })
- 
         }
         
-        else {
             
+            
+            
+            
+            
+            
+            
+            
+            
+        else if displayThis == "GenerateExtension" {
+            self.button_OtherTimes.selected = true
+            
+            self.label_Time.hidden = true
+            self.collectionView.hidden = true
+            
+            UIView.animateWithDuration(duration, animations: { () -> Void in
+                
+                let newHeight: CGFloat = self.pickerView.frame.height + 30
+                let yPosition: CGFloat = self.view.frame.size.height - newHeight - self.baseView.frame.height
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: newHeight)
+                
+                }, completion: { (completed) -> Void in
+                    
+                    if completed {
+                        self.labelView_PickerTime.hidden = false
+                        self.pickerView.hidden = false
+                    }
+            })
+        }
+
+            
+            
+            
+            
+            
+            
+        
+        else if displayThis == "NewCode" {
+            self.tableView.allowsSelection = false
+            
+            self.button_OtherTimes.selected = true
+            
+            self.tableView.hidden = false
+            
+            
+            self.label_Time.hidden = false
+            self.collectionView.hidden = true
+            
+            self.pickerView.hidden = true
+            self.labelView_PickerTime.hidden = true
+            
+            
+            
+            UIView.animateWithDuration(duration, animations: { () -> Void in
+                
+                let newHeight: CGFloat = self.view.frame.height
+                let yPosition: CGFloat = self.view.frame.size.height - newHeight
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: newHeight)
+                
+                
+                let tableFrame = CGRect(x: 0.0, y: self.view.frame.height - (44.0 * 3) - 20, width: self.view.frame.width, height: (44.0 * 3))
+                self.tableView.frame = tableFrame
+
+                
+                //indicates time from scrollView
+                let labelFrame = CGRect(x: 0.0, y: tableFrame.origin.y - 60, width: self.view.frame.width, height: 60)
+                self.label_Time.frame = labelFrame
+                self.label_Time.text = "select a new codeName"
+                
+                
+                
+                }, completion: { (completed) -> Void in
+                    
+                    if completed {
+                        self.generateCode(self.textField.text)
+                        self.textField.text = ""
+                    }
+            })
+        }
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func showTimePicker() {
+        
+        if self.button_OtherTimes.selected {
+            self.resetViewsTo("GenerateBase", duration: 0.67)
+        }
+        else {
+            let day = floor(self.genView.duration / (24 * 60))
+            let hour = floor((self.genView.duration % (24 * 60)) / 60)
+            let minute = floor((self.genView.duration % (24 * 60)) % 60)
+            
+            self.pickerView.selectRow(Int(day), inComponent: 0, animated: false)
+            self.pickerView.selectRow(Int(hour), inComponent: 1, animated: false)
+            self.pickerView.selectRow(Int(minute), inComponent: 2, animated: false)
+            
+            
+            
+            self.resetViewsTo("GenerateExtension", duration: 0.50)
         }
         
         
-
-        
-        
-         self.resetBaseView()
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    func resetBaseView() {
-        self.activityWheel.stopAnimating()
-        self.activityWheel.hidden = true
-
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     
     
@@ -547,7 +1048,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
       
         
         if self.kbIsUp {
-    
+            self.button_OtherTimes.hidden = true
             UIView.animateWithDuration(0.10, animations: { () -> Void in
                 
                 //90.0: baseView_Gen:: height of this view
@@ -556,7 +1057,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 self.baseView.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView.frame.width, height: self.baseView.frame.height + self.kbSize.height)
                 
                 if !self.baseViewIsPair {
-                    self.baseView_Gen.frame.origin.y =  self.baseView_Gen.frame.origin.y - self.kbSize.height
+                    self.baseView_Gen.frame.size.height = 90.0
+                    self.baseView_Gen.frame.origin.y =  yPosition - 90 - 1
                     
                 }
 
@@ -582,25 +1084,24 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
 
         if !self.baseViewIsPair {
             //1.0: gap between the two
+            self.button_OtherTimes.hidden = false
             
-            UIView.animateWithDuration(0.33, animations: { () -> Void in
-                
-                
-                //90.0: baseView_Gen:: height of this view
-                //1.0: gap between the two
-                var yPosition: CGFloat =  self.view.frame.height - (self.baseView.frame.height + 90 + 1)
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: 90)
-                
- 
-                
-            })
+            if self.shouldAdjustFirstResponder {
+                UIView.animateWithDuration(0.33, animations: { () -> Void in
+                    
+                    //90.0: baseView_Gen:: height of this view
+                    //1.0: gap between the two
+                    var yPosition: CGFloat =  self.view.frame.height - (self.baseView.frame.height + 90 + 1)
+                    self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: 90)
+                })
+            }
             
         }
         else {
             self.textField.placeholder = "Pair Code"
         }
 
-
+        self.shouldAdjustFirstResponder = true
 
 
     }
@@ -609,24 +1110,77 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     
     
-    //textfield for the return key
+    
+    
+    //return key
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         
-        if self.textField.isFirstResponder() {
-            self.navigationItem.setRightBarButtonItem(self.navItem_Generate, animated: false)
+
+        
+        
+        //pair
+        if self.baseViewIsPair {
+        
+            //present alert if invalid
+            if self.isValidCode(self.textField.text) {
+                self.pairWithCode(self.textField.text)
+                self.textField.text = ""
+            }
+        }
+        
             
+        //generate
+        else {
+            
+            //present alert if invalid
+            if self.isValidCode(self.textField.text) {
+                
+                self.newCodeOptions = ["","...loading...",""]
+                self.tableView.reloadData()
+                
+                
+                self.shouldAdjustFirstResponder = false
+                self.resetViewsTo("NewCode", duration: 1.2)
+            }
+        }
+        
+        
+        
+        //resign textField
+        if self.textField.isFirstResponder() {
             self.textField.resignFirstResponder()
         }
         
+
+        
         return true
     }
-
+    
+    
+    
+    
+    //touched textField
     func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
         
+        
+        if self.appDelegate.userCodes.count >= 10 {
+            self.presentViewController(self.alerts.alertsByType("inboxLimit"), animated: true, completion: nil)
+            return false
+        }
+        
+        
+        //pair view
         if self.baseViewIsPair {
             self.textField.placeholder = "Enter Connection Code"
         }
-
+        
+        
+        //.selected: pickerView (for duration) is in view
+        if self.button_OtherTimes.selected {
+            self.shouldBecomeFirstResponder = true
+            self.resetViewsTo("GenerateBase", duration: 0.0)
+            return false
+        }
     
         return true
     }
@@ -661,44 +1215,82 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
 
     
-    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 17
+        
+        if tableView.tag == 0 {
+            return self.appDelegate.userCodes.count
+        }
+        else {
+            return 3
+        }
+        
     }
     
+    
+
+    
+    
+
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        if let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForInbox") as? UITableViewCell {
-            
-            cell.textLabel!.text = "codeName"
-            cell.detailTextLabel!.text = "4 hours"
+        if tableView.tag == 0 {
+            if let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForInbox") as? UITableViewCell {
+                
+                var endAt = self.appDelegate.userCodes[indexPath.row].valueForKey("endAt") as? NSDate
+                var dateAsString: String = "unknown"
+                dateAsString = self.utilities.durationToString(endAt!)
+                
+
+                cell.backgroundColor = UIColor.whiteColor()
+                
+                cell.textLabel!.text = self.appDelegate.userCodes[indexPath.row].valueForKey("codeName") as? String
+                cell.textLabel!.backgroundColor = UIColor.clearColor()
+                
+                cell.detailTextLabel!.text = dateAsString
+                cell.detailTextLabel!.backgroundColor = UIColor.clearColor()
+                return cell
+            }
+                
+            else {
+                return UITableViewCell()
+            }
+        }
+        
+        else {
+            var cell = UITableViewCell()
+            cell.textLabel!.text = self.newCodeOptions[indexPath.row]
+            cell.textLabel!.textAlignment = NSTextAlignment.Center
             return cell
         }
-            
-        else {
-            return UITableViewCell()
-        }
+
         
     }
     
+
+
     
-    
-    
-    
-    
-    
-    
-    
+
     
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        tableView.deselectRowAtIndexPath(indexPath, animated: false)
-        
-        if !self.textField.isFirstResponder() {
-            self.performSegueWithIdentifier("enterConvo", sender: self)
+        if tableView.tag == 0 {
+            if !self.textField.isFirstResponder() {
+                self.performSegueWithIdentifier("enterConvo", sender: self)
+            }
         }
+            
+        
+        else {
+            self.codeName = self.newCodeOptions[indexPath.row]
+            self.newCodeSelected = true
+            
+            self.saveNewCode(self.codeName)
+            
+
+        }
+        
 
     }
     
@@ -731,104 +1323,79 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     //actions for tableview cells on swipe
     func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
-        var clearRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "clear", handler:{ action, indexpath in
+        
+        
+        var clearRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "clear", handler: { action, indexpath in
             
-            self.editing = false
+            
+            if indexPath.row < self.appDelegate.userCodes.count {
+                self.clearedSuccessLabel.tag = 8
+                self.clearedSuccessLabel.frame = tableView.cellForRowAtIndexPath(indexPath)!.frame
+                self.clearedSuccessLabel.frame.origin.y += (self.appDelegate.navBarSize.height + self.appDelegate.statusBarSize.height)
+                
+                self.clearedSuccessLabel.backgroundColor = self.appDelegate.allColorsArray[1].colorWithAlphaComponent(0.87)
+                
+                self.clearedSuccessLabel.text = "clearing servers..."
+                self.clearedSuccessLabel.textAlignment = NSTextAlignment.Center
+                self.clearedSuccessLabel.textColor = UIColor.whiteColor()
+                
+                self.view.addSubview(self.clearedSuccessLabel)
+                
+                var clearId: String = self.appDelegate.userCodes[indexPath.row].valueForKey("codeId") as! String
+                self.clearServer_Messages([clearId])
+            }
+
+            tableView.editing = false
         })
         clearRowAction.backgroundColor = self.appDelegate.allColorsArray[1]
         
         
-        var deleteRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "delete", handler:{ action, indexpath in
+        var deleteRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "delete", handler: { action, indexpath in
             
-            self.editing = false
+            if indexPath.row < self.appDelegate.userCodes.count {
+                
+                let deleteId: String = self.appDelegate.userCodes[indexPath.row].valueForKey("codeId") as! String
+                
+                self.deleteFromServer(deleteId)
+                
+                self.appDelegate.shouldDeleteThese.append(deleteId)
+                self.appDelegate.fetchFromCoreData()
+                
+                
+                self.inboxTable.reloadData()
+
+            }
+
+            tableView.editing = false
+
         })
         
         
         var unknownAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "...", handler:{ action, indexpath in
-            self.editing = false
+            tableView.editing = false
         })
         unknownAction.backgroundColor = UIColor.whiteColor()
         
         
         
-        
+        if tableView.tag == 1 {
+            return []
+        }
+
         return [deleteRowAction, clearRowAction]
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    //collection view used for time slide
-    
-    
-    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.durationLimits.count
-    }
-    
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        
-        var collectionCell = collectionView.dequeueReusableCellWithReuseIdentifier("Cell", forIndexPath: indexPath) as! TimeSlideCollectionViewCell
-        
-        collectionCell.frame.origin.y = 0
-        
-        collectionCell.backgroundColor = UIColor.clearColor()
-        //tag: used to indicate what row is visibile for changing header
-        collectionCell.tag = indexPath.row
-        collectionCell.textLabel.text = self.durationLimits[indexPath.row]
 
-        
-        collectionCell.backgroundColor = UIColor.whiteColor()
-        
-        
-        return collectionCell
-    }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        
-        
-        
-        if indexPath.row < 10 {
-            var size = CGSize(width: 75, height: 30)
-            return size
-            
-        }
-            
-        else if indexPath.row < 17 {
-            var size = CGSize(width: 150, height: 30)
-            return size
-        }
-            
-        else {
-            var size = CGSize(width: 300, height: 30)
-            return size
-        }
-        
-        
-    }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAtIndex section: Int) -> CGFloat {
-        
-        return 1
-    }
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 
@@ -838,113 +1405,86 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
 
     
+    func deleteFromServer(deleteId: String) {
+        
+        let codeObject = PFObject(withoutDataWithClassName: "Connection", objectId: deleteId)
+
+        
+        var errorDelete: NSError?
+        PFObject.deleteAll([codeObject], error: &errorDelete)
+        
+        self.clearServer_Messages([deleteId])
+    }
+
     
-    //if timeSlide view is pressed on left/right extremes,
-    //then, scroll the view to first/last time option
-    func tapScrollView(recognizer: UITapGestureRecognizer) {
+    
+    func clearServer_Messages(codeIdArray: [(String)]) {
         
-        let viewForGesture = recognizer.view!
-        let locationOfTouch = recognizer.locationOfTouch(0, inView: self.collectionView)
-        
-        
-        //scroll to time on far left
-        if abs(self.collectionView.contentOffset.x - locationOfTouch.x) <= 20 {
+        //clear the messages associated with this conversation
+        //first have to query to find them
+        var errorClear: NSError?
+        var deleteQuery = PFQuery(className: "Messages")
+        deleteQuery.whereKey("codeId", containedIn: codeIdArray)
+        deleteQuery.findObjectsInBackgroundWithBlock({ (deleteMessages, errorClear) -> Void in
+            if let error = errorClear {
+                
+                if error.code == 100 {
+                    self.appDelegate.networkSignal = false
+                }
+                else {
+                    self.appDelegate.networkSignal = true
+                }
+                
+                
+            }
+            else if let deleteMessages = deleteMessages {
+                self.appDelegate.networkSignal = true
+                
+                var errorDelete: NSError?
+                var deleted = PFObject.deleteAll(deleteMessages, error: &errorDelete)
+                if let error = errorDelete {
+                    
+                    self.clearedSuccessLabel.text = "failed"
+                    self.clearedSuccessLabel.backgroundColor = self.appDelegate.allColorsArray[2]
+                    
+                    if error.code == 100 {
+                        self.appDelegate.networkSignal = false
+                    }
+                    else if error.code == 101 {
+                        //object not found
+                    }
+                    
+                    
+                    
+                    
+                }
+                else if deleted {
+                    self.appDelegate.networkSignal = true
+                    
+                    self.clearedSuccessLabel.text = "success!"
+                    
+                }
+                    
+                else {
+                    self.clearedSuccessLabel.text = "failed"
+                    self.clearedSuccessLabel.backgroundColor = self.appDelegate.allColorsArray[2]
+                }
+                
+                
+                self.utilities.delay(1.7, closure: { () -> () in
+                    self.clearedSuccessLabel.removeFromSuperview()
+                })
+            }
+     
+
             
-            let indexPath = NSIndexPath(forItem: 2, inSection: 0)
-            self.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredHorizontally, animated: true)
-        }
-            
-            //scroll to time on far right
-        else if abs(self.collectionView.contentOffset.x - locationOfTouch.x) - self.view.frame.width >= -20 {
-            
-            let indexPath = NSIndexPath(forItem: self.durationLimits.count - 1, inSection: 0)
-            self.collectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredHorizontally, animated: true)
-        }
+        })
         
     }
     
     
-    //change time label as timeSlide adjusts by time
-    func scrollViewDidScroll(scrollView: UIScrollView) {
-        
-        
-        //75.0: width of items in sectionOne
-        //10: number of items in sectionOne
-        //width * numberOfItems(with width)
-        var sectionOne: CGFloat = 75.0 * 10
-        var unitOne: CGFloat = scrollView.contentOffset.x / 75.0
-        var minutes = Int((5 * unitOne) + 20)
-        
-        
-        //150.0: width of items in sectionTwo
-        //7: number of items in sectionTwo
-        //-75.0: adjusts for text label which has text in center (half of width[150])
-        var sectionTwo: CGFloat = 150.0 * 7
-        var unitTwo: CGFloat = (scrollView.contentOffset.x - sectionOne - 75.0) / 150.0
-        var hours = Int(round(unitTwo)) + 2
-        //minutes divided in units of 12 minutes
-        var unit12: CGFloat = (scrollView.contentOffset.x - sectionOne) / (150.0 / 5.0)
-        var minutesBy12 = (Int(unit12 + 5) % 5) * 12
-        
-        
-        //300.0: width of items in sectionThree
-        //3: number of items in sectionThree
-        var sectionThree: CGFloat = 300 * 3
-        //-150.0: adjusts for text label which has text in center (half of width[300])
-        var unitThree: CGFloat = (scrollView.contentOffset.x - sectionOne - sectionTwo - 150.0) / 300.0
-        var days = Int(round(unitThree)) + 1
-        //minutes divided in units of 12 minutes
-        var unit30: CGFloat = (scrollView.contentOffset.x - sectionOne - sectionTwo ) / (300.0 / 24.0)
-        var hoursInDay = Int(unit30 % 24.0)
-        
-        
-        
-        if minutes <= 7 {
-            self.label_Time.text = "PiGone"
-        }
-        else if minutes <= 59 {
-            //set label
-            self.label_Time.text = "\(minutes)\nminutes"
-            
-            //set value for parse
-            self.duration = Double(minutes)
-        }
-        else if hours <= 8 {
-            //set label
-            self.label_Time.text = "H: \(hours) M: \(minutesBy12)"
-            
-            //set value for parse
-            self.duration = Double((hours * 60) + (minutesBy12))
-        }
-        else if hoursInDay < 0 || days <= 0 {
-            //set label
-            self.label_Time.text = "D: \(0) H: \(14 - abs(hoursInDay))"
-            
-            //set value for parse
-            self.duration = Double((days * 24 * 60) + (hoursInDay * 60))
-        }
-        else if days <= 5 {
-            //set label
-            self.label_Time.text = "D: \(days) H: \(hoursInDay)"
-            
-            //set value for parse
-            self.duration = Double((days * 24 * 60) + (hoursInDay * 60))
-        }
-        else {
-            self.label_Time.text = "PiGone"
-        }
-        
-        
-        //checkHere
-        //possible addition:
-        //move label time origin.x according to how far time has been scrolled
     
-    }
-    
-    
-    
-    
-    
+
     
     
     
@@ -965,6 +1505,10 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+        
+        self.queryCheck.cancel()
+        self.queryConnection.cancel()
+        self.queryAllCodes.cancel()
     }
     
     
@@ -974,80 +1518,97 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     
     
+
     
     
     
     
     
-    
-    
-    
-    
-    
-    
-    func alertsByType(alertType: String) -> UIAlertController {
-        
-        let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
+    func isValidCode(input: String) -> Bool {
         
         
-        //code must be at least 4 charas
-        if alertType == "short" {
-            var alert = UIAlertController(title: "☝️too short", message: "4 character minimum", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(dismiss)
+        
+        //if they have no internet connection
+        //if !self.appDelegate.networkSignal {
+            //self.presentViewController(self.alerts.alertsByType("network"), animated: true, completion: nil)
+            //return true
+            //checkHere
+            //no way to re evaluate stronger signal once assigned as false
+        //}
             
-            return alert
+            
+            
+        if !input.isEmpty {
+            
+            //code input must be at least 4
+            if count(input) < 4  {
+                self.presentViewController(self.alerts.alertsByType("short"), animated: true, completion: nil)
+                return false
+            }
+                
+                
+                //code input cannot be greater than 17
+            else if count(input) > 17 {
+                self.presentViewController(self.alerts.alertsByType("long"), animated: true, completion: nil)
+                return false
+            }
+                
+                
+                //returns false if invalid punctuation used (also rejects too many spaces)
+            else if self.utilities.invalidPunc(input) {
+                self.presentViewController(self.alerts.alertsByType("punc"), animated: true, completion: nil)
+                return false
+            }
+                
+                
+                //valid codes with text in textField will fall to this clause
+            else {
+                return true
+            }
+            
         }
             
             
             
-            //code cannot be longer than 17 charas
-        else if alertType == "long" {
-            var alert = UIAlertController(title: "☝️too long", message: "17 character maximum", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(dismiss)
             
-            return alert
+            
+            
+            
+            //pair input cannot be blank
+        else if self.baseViewIsPair {
+            self.presentViewController(self.alerts.alertsByType("enterCodeToPair"), animated: true, completion: nil)
+            return false
         }
             
             
-            //when pairing, textfield must have text
-        else if alertType == "enterCodeToPair" {
-            var alert = UIAlertController(title: "☝️enter code", message: "codeNames are used to connect users", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(dismiss)
-            
-            return alert
-        }
-            
-            
-            //invalid punctuation used
-        else if alertType == "punc" {
-            var alert = UIAlertController(title: "☝️invalid punctuation", message: "try emoticons", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(dismiss)
-            
-            return alert
-        }
-            
-            
-            //no internet
-        else if alertType == "network" {
-            var alert = UIAlertController(title: "☝️weak signal", message: "connect to a stronger network signal", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(dismiss)
-            
-            return alert
-        }
-            
-            
-            
-            
-            
-            
-            
+            //generated codes without text in textField will be random (ie: purple monkey)
         else {
-            var alert = UIAlertController(title: "PiGone", message: "meet our mascot, PiGone the carrier pigeon", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(dismiss)
-            
-            return alert
+            return true
         }
+        
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+  
     
     
     

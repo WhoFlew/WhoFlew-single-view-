@@ -50,6 +50,10 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     //time expiration time limit
     //var collectionView: UICollectionView!
+<<<<<<< Updated upstream
+=======
+    //checkHere
+>>>>>>> Stashed changes
     var label_Time: UILabel!
     
 
@@ -243,7 +247,11 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //collection view scroll with label
         self.baseView_Gen.addSubview(self.label_Time)
         //self.baseView_Gen.addSubview(self.collectionView)
+<<<<<<< Updated upstream
         
+=======
+        //checkHere
+>>>>>>> Stashed changes
         
         //toggles between two time views
         self.baseView_Gen.addSubview(self.button_OtherTimes)

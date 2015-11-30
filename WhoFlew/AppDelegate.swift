@@ -7,8 +7,9 @@
 //
 
 import UIKit
-import Parse
 import CoreData
+import Parse
+import Bolts
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,14 +17,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     //dictionary for simple types, used to store settings
-    let dialoguesSaved = NSUserDefaults.standardUserDefaults()
+    let userDefaults = NSUserDefaults.standardUserDefaults()
+    //daily pair limit
+    var datesOfPairAttempts = [(NSDate)]()
+    var numPairAttemptsInLast24: Int = 0
     
     
-    
-    
-    //parse server id and key
-    let idDialogue: String = "0tsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
-    let keyDialogue: String = "dRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
+    //parse server id and key, 0d
+    let idDialogue: String = "ytsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
+    let keyDialogue: String = "tRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
     
     //true: when connection to the internet appears to be present (has yet to fail)
     //false: when internet/parse connection has failed
@@ -32,8 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     var userName: String = UIDevice.currentDevice().identifierForVendor!.UUIDString
-    let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
-    
+        
     
     
     var statusBarSize: CGSize!
@@ -71,13 +72,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     //objects in core data, stores details of conversation (endAt, shouldDelete, userOrder)
     var userCodes = [(NSManagedObject)]()
-    var connections = ["Welcome!": (messageArray: ["Introducing WhoFlew", "Ya"], orderArray: [0,0], pairs: [String]())]
-    //[String(): (messageArray: [String](), orderArray: [Int](), pairs: [String]())]
 
     
     //used to query all codes in the inbox
     var codeIds = [(String)]()
-
+    //just the name of connections
+    var codeNames = [(String)]()
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
@@ -87,11 +87,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //set up parse with id and key
         Parse.setApplicationId(self.idDialogue, clientKey: self.keyDialogue)
         
-        //read and save settings, like pairAttempts
-        self.readSettings()
         
-        //get user info form data
-        self.fetchFromCoreData()
+
         
         
         
@@ -99,9 +96,94 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //check here
         self.networkSignal = true
         
+        
+        
+        
+        
+        
+        // Register for Push Notitications
+        if application.applicationState != UIApplicationState.Background {
+            // Track an app open here if we launch with a push, unless
+            // "content_available" was used to trigger a background push (introduced in iOS 7).
+            // In that case, we skip tracking here to avoid double counting the app-open.
+            
+            let preBackgroundPush = !application.respondsToSelector("backgroundRefreshStatus")
+            let oldPushHandlerOnly = !self.respondsToSelector("application:didReceiveRemoteNotification:fetchCompletionHandler:")
+            var pushPayload = false
+            if let options = launchOptions {
+                pushPayload = options[UIApplicationLaunchOptionsRemoteNotificationKey] != nil
+                
+            }
+            if (preBackgroundPush || oldPushHandlerOnly || pushPayload) {
+                PFAnalytics.trackAppOpenedWithLaunchOptions(launchOptions)
+            }
+        }
+        
+        if application.respondsToSelector("registerUserNotificationSettings:") {
+            let userNotificationTypes: UIUserNotificationType = [UIUserNotificationType.Alert, UIUserNotificationType.Badge, UIUserNotificationType.Sound]
+            let settings = UIUserNotificationSettings(forTypes: userNotificationTypes, categories: nil)
+            application.registerUserNotificationSettings(settings)
+            application.registerForRemoteNotifications()
+            
+            
+        } else {
+            let notificationTypes: UIUserNotificationType = [UIUserNotificationType.Alert, UIUserNotificationType.Badge, UIUserNotificationType.Sound]
+            let notificationSettings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: notificationTypes, categories: nil)
+            UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
+            
+            
+            
+        }
 
         
         return true
+    }
+    
+    
+    
+    
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+        
+        let installation = PFInstallation.currentInstallation()
+        installation.setDeviceTokenFromData(deviceToken)
+        installation.saveInBackground()
+    }
+    
+    
+    
+    func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification) {
+        
+        NSNotificationCenter.defaultCenter().postNotificationName("NotificationIdentifierNewMessage", object: nil)
+        
+        
+        
+    }
+    
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        
+        //get into the incoming notification alert
+        //this entire series of if-let is to destermine type of alert and then seperate codeName from textMessage
+        if let aps = userInfo["aps"] as? NSDictionary {
+            
+            if let pushText = aps["alert"] as? String {
+                
+                let array = Array(arrayLiteral: pushText)
+                
+                if array.first == "A" {
+                    
+                    
+                    PFPush.handlePush(userInfo)
+                    NSNotificationCenter.defaultCenter().postNotificationName("NotificationIdentifierNewUserPaired", object: nil)
+                }
+                else {
+                    NSNotificationCenter.defaultCenter().postNotificationName("NotificationIdentifierNewMessage", object: nil)
+                    
+
+                }
+                
+            }
+        }
+        
     }
 
     func applicationWillResignActive(application: UIApplication) {
@@ -236,7 +318,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         self.userCodes.removeAll(keepCapacity: false)
-        self.connections.removeAll(keepCapacity: false)
+        
         
 
         for code in results {
@@ -259,6 +341,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 self.userCodes.append(code as! (NSManagedObject))
                 
                 self.codeIds.append(codeId)
+                self.codeNames.append(codeName)
             }
             else {
                 self.codesDeleted.append(codeName)
@@ -288,8 +371,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func saveSettings() {
         
-
-        
+        self.userDefaults.setValue(self.datesOfPairAttempts, forKey: "datesOfPairAttempts")
+        //self.userDefaults.setValue(self.alreadyHere, forKey: "alreadyHere")
         
     }
     
@@ -300,8 +383,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func readSettings() {
         
-        
-
+        if self.userDefaults.objectForKey("datesOfPairAttempts") != nil {
+            self.datesOfPairAttempts = self.userDefaults.arrayForKey("datesOfPairAttempts") as! [(NSDate)]
+            
+            for date in self.datesOfPairAttempts {
+                if date.timeIntervalSinceNow >= (24.0 * 60.0  * 60.0) {
+                    self.numPairAttemptsInLast24++
+                }
+            }
+            
+            
+        }else {
+            self.saveSettings()
+        }
         
     }
     

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9060" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="EVx-FF-coH">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9060" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="EVx-FF-coH">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
@@ -121,9 +121,9 @@
                             <constraint firstItem="GeK-z0-m5l" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="4KE-bG-2VF"/>
                             <constraint firstItem="59Z-Gc-jBG" firstAttribute="top" secondItem="0di-1S-T0a" secondAttribute="top" constant="64" id="Ok3-UM-Inh"/>
                             <constraint firstItem="59Z-Gc-jBG" firstAttribute="leading" secondItem="0di-1S-T0a" secondAttribute="leading" id="iO1-6m-7lY"/>
-                            <constraint firstAttribute="bottom" secondItem="59Z-Gc-jBG" secondAttribute="bottom" constant="56" id="j0E-1w-f5D"/>
                             <constraint firstItem="sxR-XA-epl" firstAttribute="top" secondItem="GeK-z0-m5l" secondAttribute="bottom" id="nGe-75-tG3"/>
                             <constraint firstAttribute="trailing" secondItem="59Z-Gc-jBG" secondAttribute="trailing" id="oxM-VX-jzx"/>
+                            <constraint firstItem="sxR-XA-epl" firstAttribute="top" secondItem="59Z-Gc-jBG" secondAttribute="bottom" constant="56" id="ssq-Wc-c1O"/>
                             <constraint firstAttribute="trailing" secondItem="GeK-z0-m5l" secondAttribute="trailing" id="zd4-OX-4uy"/>
                         </constraints>
                     </view>
@@ -138,7 +138,7 @@
                             <rect key="frame" x="180" y="7" width="240" height="30"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <animations/>
-                            <state key="normal" title="FW">
+                            <state key="normal" title="WhoFlew">
                                 <color key="titleColor" red="0.98039215690000003" green="0.25882352939999997" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="titleShadowColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </state>
@@ -172,8 +172,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="50" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="Np7-fj-lVo">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="563"/>
+                            <tableView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="interactive" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="50" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="Np7-fj-lVo">
+                                <rect key="frame" x="0.0" y="64" width="600" height="499"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -299,11 +299,13 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Np7-fj-lVo" firstAttribute="trailing" secondItem="WEi-lN-Irt" secondAttribute="trailing" id="Iim-Y9-DZM"/>
+                            <constraint firstItem="WEi-lN-Irt" firstAttribute="top" secondItem="Np7-fj-lVo" secondAttribute="bottom" id="LQY-Hj-gBD"/>
                             <constraint firstItem="WEi-lN-Irt" firstAttribute="leading" secondItem="7zW-sS-n30" secondAttribute="leading" id="Pzk-wK-Y1s"/>
-                            <constraint firstItem="Np7-fj-lVo" firstAttribute="top" secondItem="7zW-sS-n30" secondAttribute="top" id="YYl-Qr-VVu"/>
+                            <constraint firstItem="Np7-fj-lVo" firstAttribute="top" secondItem="7zW-sS-n30" secondAttribute="top" constant="64" id="YYl-Qr-VVu"/>
                             <constraint firstItem="WEi-lN-Irt" firstAttribute="bottom" secondItem="bMC-cO-yBR" secondAttribute="top" id="b7e-cv-udi"/>
                             <constraint firstItem="Np7-fj-lVo" firstAttribute="leading" secondItem="WEi-lN-Irt" secondAttribute="leading" id="hmI-w5-PPh"/>
                             <constraint firstAttribute="trailing" secondItem="Np7-fj-lVo" secondAttribute="trailing" id="qJH-jT-92g"/>
+                            <constraint firstItem="WEi-lN-Irt" firstAttribute="top" secondItem="Np7-fj-lVo" secondAttribute="bottom" id="rKY-uA-ZKP"/>
                             <constraint firstItem="WEi-lN-Irt" firstAttribute="top" secondItem="Np7-fj-lVo" secondAttribute="bottom" id="trN-nW-CRv"/>
                         </constraints>
                     </view>

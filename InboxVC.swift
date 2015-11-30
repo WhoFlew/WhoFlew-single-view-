@@ -8,11 +8,10 @@
 
 import UIKit
 import Foundation
-import Parse
-import Bolts
 import CoreData
 
-
+import Parse
+import Bolts
 
 
 
@@ -48,26 +47,13 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     @IBOutlet weak var baseView: UIView!
     var baseView_Gen: UIView!
     
-    //time expiration time limit
-    //var collectionView: UICollectionView!
-<<<<<<< Updated upstream
-=======
-    //checkHere
->>>>>>> Stashed changes
-    var label_Time: UILabel!
+
     
 
     var tableView: UITableView!
-    var button_Gen: UIView = UIButton(type: UIButtonType.ContactAdd) as UIView
     
     
-    //pickerview with 3 componenets (hour, day, min)
-    var pickerView: UIPickerView!
-    //triggers pickerview to replace collectionView and cover textField
-    var button_OtherTimes: UIButton!
-    //3 labels inside (hour, day, min)
-    var labelView_PickerTime: UIView!
-    
+
     
     
     var activityWheel = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.WhiteLarge)
@@ -82,7 +68,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     @IBOutlet weak var textField: UITextField!
     var kbSize: CGSize = CGSize()
     var kbIsUp: Bool = false
-    var shouldBecomeFirstResponder: Bool = false
     var shouldAdjustFirstResponder: Bool = true
     
     
@@ -96,7 +81,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
 
     var newCodeOptions = ["codeName","options","here"]
-    var newCodeSelected: Bool = false
+    var newCodeSelectedOrCancled: Bool = false
 
     
     
@@ -110,9 +95,24 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     var queryCheck = PFQuery(className: "Connection")
     
     
+    
+    
+    
+    
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        //read and save settings: pairAttempts
+        self.appDelegate.readSettings()
+        
+        
+        //get user info form data
+        self.appDelegate.fetchFromCoreData()
+        
+        
         
         
         self.inboxTable.delegate = self
@@ -154,7 +154,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
         //tableFrame = pickerFrame (except for y value)
-        let tableFrame = CGRect(x: 0.0, y: self.view.frame.height, width: self.view.frame.width, height: (44.0 * 3))
+        let tableFrame = CGRect(x: 0.0, y: self.view.frame.height, width: UIScreen.mainScreen().bounds.width, height: (44.0 * 3))
         
         //new codes in tableView
         self.tableView = UITableView(frame: tableFrame)
@@ -169,11 +169,11 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
         
-        self.genView = GenView(frame: self.view.frame)
+        self.genView = GenView(frame: UIScreen.mainScreen().bounds)
 
         
         
-        //self.textField, self.button_Gen, self.collectionView, self.label_Time, self.baseView_Gen, self.button_OtherTimes
+        //self.textField, self.button_Gen, self.collectionView, self.genView.label_Time, self.baseView_Gen, self.genView.button_OtherTimes
         self.genView.setBaseViewContent()
         //self.button_Gen: right corner, triggers self.tapForRandom
         //self.textField: in self.baseView
@@ -183,49 +183,34 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
         //sets up:
-        //self.pickerView, self.labelView_PickerTime
+        //self.genView.pickerView, self.genView.labelView_PickerTime
         self.genView.setPickerViewContent()
-        //pickerView: 3 componenents
+        //genView.pickerView: 3 componenents
         //labelView: 3 labels (days, hours, time)
-        //placed above pickerview, aligned with respective component
+        //placed above genView.pickerView, aligned with respective component
         
         
         
-        //base View for generate
-        self.baseView_Gen = self.genView.genView
-
         
-        //scroll view for duration, label indicates set time
-        //self.collectionView = self.genView.collectionView
-        self.label_Time = self.genView.label_Time
+        self.genView.addSubviesToBase()
         
         
-        //triggers pickerview to replace collectionView and cover textField
-        self.button_OtherTimes = self.genView.button_OtherTimes
         
-        
-        //pickerview with 3 componenets (hour, day, min), label indicates time for each component
-        self.pickerView = self.genView.pickerView
-        self.labelView_PickerTime = self.genView.labelView_PickerTime
-        
-        
-
-        //button_Gen shows tableView with options for new code
-        self.button_Gen = self.genView.button_Gen
+        self.baseView_Gen = self.genView.baseViewGen
 
         
 
 
-        
-        
-        self.button_Gen.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "tapForRandom:"))
-        
+        //plus button next to textField
+        self.genView.button_Gen.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "tapForRandom:"))
 
         
         
-        //shows pickerview with three time componenents
-        self.button_OtherTimes.addTarget(self, action: "showTimePicker", forControlEvents: UIControlEvents.TouchDown)
+        //shows genView.pickerView with three time componenents
+        self.genView.button_OtherTimes.addTarget(self, action: "showTimePicker", forControlEvents: UIControlEvents.TouchDown)
         
+        
+        self.genView.button_Shuffle.addTarget(self, action: "generateCode", forControlEvents: UIControlEvents.TouchDown)
         
         
         
@@ -233,33 +218,18 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //loading wheel
         self.activityWheel.center.x = self.view.center.x
         self.activityWheel.center.y = self.textField.center.y
+        
         self.baseView.addSubview(self.activityWheel)
         self.activityWheel.hidden = true
 
         
         
         //plus button on baseview, random code only
-        self.button_Gen.center.y = self.textField.center.y
-        self.baseView.addSubview(self.button_Gen)
+        self.genView.button_Gen.center.y = self.textField.center.y
+        self.baseView.addSubview(self.genView.button_Gen)
         
 
 
-        //collection view scroll with label
-        self.baseView_Gen.addSubview(self.label_Time)
-        //self.baseView_Gen.addSubview(self.collectionView)
-<<<<<<< Updated upstream
-        
-=======
-        //checkHere
->>>>>>> Stashed changes
-        
-        //toggles between two time views
-        self.baseView_Gen.addSubview(self.button_OtherTimes)
-        
-    
-        //pickerview time with label
-        self.baseView_Gen.addSubview(self.labelView_PickerTime)
-        self.baseView_Gen.addSubview(self.pickerView)
 
 
         self.view.addSubview(self.baseView_Gen)
@@ -268,8 +238,10 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
         
-        self.pickerView.hidden = true
-        self.labelView_PickerTime.hidden = true
+        self.genView.pickerView.hidden = true
+        self.genView.labelView_PickerTime.hidden = true
+        self.genView.button_Shuffle.hidden = true
+        
         self.tableView.hidden = true
     }
 
@@ -303,9 +275,9 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
 
         
-        
+
         if self.appDelegate.codeIds.count > 0 {
-            
+
             self.queryCheck.whereKey("objectId", containedIn: self.appDelegate.codeIds)
         
             self.queryCheck.findObjectsInBackgroundWithBlock { (aliveCodes, errorPoint) -> Void in
@@ -410,6 +382,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         if sender.tag == 1 {
             self.textField.text = ""
             
+            self.newCodeSelectedOrCancled = true
+            
             self.queryConnection.cancel()
             self.queryAllCodes.cancel()
         }
@@ -433,7 +407,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //generate new code
         else {
             self.resetViewsTo("GenerateBase", duration: 0.67)
-            self.resetViewsTo("GenerateExtension", duration: 0.0)
+            self.resetViewsTo("TimeExtension", duration: 0.67)
         }
     }
     
@@ -461,6 +435,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                     
                     self.shouldAdjustFirstResponder = false
                     self.resetViewsTo("NewCode", duration: 1.2)
+                
 
         }
         
@@ -475,13 +450,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     func pairWithCode(codeName: String) {
         
+        self.appDelegate.datesOfPairAttempts.append(NSDate())
+        self.appDelegate.saveSettings()
+        
         
         self.activityWheel.startAnimating()
         self.activityWheel.hidden = false
         
         
         self.textField.hidden = true
-        self.button_Gen.hidden = true
+        self.genView.button_Gen.hidden = true
         
         
         self.shouldAdjustFirstResponder = true
@@ -536,6 +514,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 
                 if size > pairs.count {
                     
+                    let pairsBeforeAppend = pairs
                     //add this user to pairs, set value as new object
                     pairs.append(self.appDelegate.userName)
                     pairCode.setValue(pairs, forKey: "pairs")
@@ -594,6 +573,32 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                                     self.inboxTable.reloadData()
                                 })
                                 
+                                
+                                //send push that says a new user joined
+                                let uQuery: PFQuery = PFUser.query()!
+                                uQuery.whereKey("username", containedIn: pairsBeforeAppend)
+                                
+                                let pushQuery: PFQuery = PFUser.query()!
+                                pushQuery.whereKey("user", matchesQuery: uQuery)
+                                
+                                let push: PFPush = PFPush()
+                                push.setQuery(pushQuery)
+                                
+                                push.setMessage("A new user has paired to codeName: \(self.codeName)")
+                                
+                                push.sendPushInBackgroundWithBlock({ (sucess, errorPush: NSError?) -> Void in
+                                    
+                                    if let error = errorPush {
+                                        
+                                        if error.code == 100 {
+                                            //internet signal lost
+                                        }
+                                    }
+                                    else if sucess {
+                                    }
+                                    
+                                })
+                                
                             }
                             
                         }
@@ -626,8 +631,13 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     
     
-    func generateCode(codeName: String) {
-        self.newCodeSelected = false
+    func generateCode() {
+        self.newCodeSelectedOrCancled = true
+        
+        
+        let codeName: String = self.textField.text!
+        self.textField.text = ""
+    
         
         var allCodeNames = [(String)]()
 
@@ -644,7 +654,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             allCodes = try queryAllCodes.findObjects()
         } catch let error as NSError {
             errorPoint = error
-            allCodes = nil
         }
         if let error = errorPoint {
             
@@ -652,15 +661,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             if error.code == 100 {
                 self.appDelegate.networkSignal = false
                 
-                self.label_Time.text = "error"
+                self.genView.label_Time.text = "error"
                 self.newCodeOptions = ["⚠️","check network signal","🙈"]
                 self.tableView.reloadData()
-            }
-            else {
+            
+            } else {
                 self.appDelegate.networkSignal = true
             }
             
         }
+
         else if let allCodes = allCodes {
             self.appDelegate.networkSignal = true
             
@@ -670,15 +680,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 }
             }
             self.generate.allCodes = allCodeNames
-            
+
             if codeName.isEmpty {
                 
                 self.newCodeOptions = self.generate.generateCodeName()
                 self.tableView.reloadData()
                 self.tableView.allowsSelection = true
-            }
-                
-            else {
+           
+            } else {
                 self.newCodeOptions = self.generate.createCode(codeName, infiniteConnection: false)
                 self.tableView.reloadData()
                 self.tableView.allowsSelection = true
@@ -688,8 +697,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
             self.utilities.delay(18.0, closure: { () -> () in
                 
-                if !self.newCodeSelected {
-                    print("delay enacted")
+                if !self.newCodeSelectedOrCancled {
                     self.resetViewsTo("PairView", duration: 1.2)
                 }
                 
@@ -797,7 +805,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                             cell!.backgroundColor = self.appDelegate.allColorsArray[1]
                             
                             
-                            UITableViewCell.animateWithDuration(6.5, animations: { () -> Void in
+                            UITableViewCell.animateWithDuration(3.5, animations: { () -> Void in
                                 cell!.backgroundColor = self.appDelegate.allColorsArray[0]
                             })
                             
@@ -834,23 +842,32 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         if displayThis == "PairView" {
             self.baseViewIsPair = true
-            
-            self.pickerView.hidden = true
-            self.labelView_PickerTime.hidden = true
-            self.button_OtherTimes.selected = false
+            print("PairView")
             
             self.activityWheel.stopAnimating()
             self.activityWheel.hidden = true
             
-            self.textField.hidden = false
             
-            self.button_Gen.hidden = false
+            self.genView.pickerView.hidden = true
+            self.genView.labelView_PickerTime.hidden = true
+            
+            self.genView.button_Shuffle.hidden = true
+            
+            
+            self.genView.button_OtherTimes.selected = false
+            
+
+            self.textField.placeholder = "Pair Code"
+            self.textField.hidden = false
+
+            
+            self.genView.button_Gen.hidden = false
+            
+            self.genView.label_Time.hidden = true
+            
             
             
             self.navigationItem.setRightBarButtonItem(self.navItem_Generate, animated: false)
-            
-            
-            self.textField.placeholder = "Pair Code"
             
             
             
@@ -858,8 +875,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 
                 
                 //offsets the y Origin of the view so it is underneath nav bar
-                let offSetY: CGFloat = (self.appDelegate.navBarSize.height + self.appDelegate.statusBarSize.height) - (180 + self.view.frame.height)
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: offSetY, width: self.view.frame.width, height: 180 + self.view.frame.height)
+                let offSetY: CGFloat = self.view.frame.height
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: offSetY, width: UIScreen.mainScreen().bounds.width, height: 180 + self.view.frame.height)
                 
                 
                 
@@ -869,25 +886,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
 
                 
                 //tableFrame = pickerFrame (except for y value)
-                let tableFrameOriginal = CGRect(x: 0.0, y: self.view.frame.height, width: self.view.frame.width, height: (44.0 * 3))
-                
-                //new codes in tableView
+                let tableFrameOriginal = CGRect(x: -(44.0 * 6), y: self.tableView.frame.origin.y + 60, width: 40, height: (44.0 * 3))
                 self.tableView.frame = tableFrameOriginal
-                
-                
-                
-                
+
                 
                 
                 
                 self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[1]
                 
                 self.baseView.backgroundColor = self.appDelegate.allColorsArray[2]
-                
-                
 
-                self.label_Time.hidden = true
-                //self.collectionView.hidden = true
             })
         }
         
@@ -905,13 +913,20 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
             self.textField.placeholder = "Leave blank for random codeName"
             
-            self.pickerView.hidden = true
-            self.labelView_PickerTime.hidden = true
             
-            self.button_OtherTimes.hidden = false
-            self.button_OtherTimes.selected = false
             
+            self.genView.pickerView.hidden = true
+            self.genView.labelView_PickerTime.hidden = true
+            
+            
+            self.genView.button_OtherTimes.hidden = false
+            self.genView.button_OtherTimes.selected = false
+            
+            
+            self.genView.label_Time.hidden = false
 
+            
+            self.genView.button_OtherTimes.hidden = false
             
             
             UIView.animateWithDuration(duration, animations: { () -> Void in
@@ -919,34 +934,38 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
 
                 //90.0: baseView_Gen:: height of this view
                 let yOffSet: CGFloat = self.view.frame.height - self.baseView.frame.height - 90 - 1
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: yOffSet, width: self.view.frame.width, height: 90)
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: yOffSet, width: UIScreen.mainScreen().bounds.width, height: 90)
                 
                 
-                let textFieldWidth: CGFloat = (self.view.frame.width - 16.0)
-                self.textField.frame = CGRect(x: 8.0, y: 9.0, width: textFieldWidth - 36, height: self.textField.frame.height)
-                
+
                 
                 //indicates time from scrollView
-                let labelFrame = CGRect(x: 0.0, y: 0, width: self.view.frame.width, height: 90)
-                self.label_Time.frame = labelFrame
+                let labelFrame = CGRect(x: 32.0, y: 0.0, width: UIScreen.mainScreen().bounds.width - 64, height: 90)
+                self.genView.label_Time.frame = labelFrame
+                
+                
                 let stringExpiration: String = self.utilities.durationToString(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0))
-                self.label_Time.text = "expires in\n\(stringExpiration)"
+                self.genView.label_Time.text = "self destruct after\n\(stringExpiration)"
+
+                self.genView.label_Time.layer.borderWidth = 0
+                
+                self.genView.label_Time.backgroundColor =  self.appDelegate.allColorsArray[1]
+                
+                
+                self.textField.frame = CGRect(x: self.textField.frame.origin.x, y: self.textField.frame.origin.y, width: UIScreen.mainScreen().bounds.width - 16, height: self.textField.frame.height)
+                
+                
+                
+                
                 
                 self.baseView.backgroundColor = self.appDelegate.allColorsArray[1]
-                
+            
                 self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[1]
                 
                 
-                
-                self.label_Time.hidden = false
-                //self.collectionView.hidden = false
-                
                 }, completion: { (completed) -> Void in
                     
-                    if completed && self.shouldBecomeFirstResponder && !self.textField.isFirstResponder() {
-                        self.textField.becomeFirstResponder()
-                        self.shouldBecomeFirstResponder = false
-                    }
+
             })
         }
         
@@ -959,29 +978,46 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
             
             
-        else if displayThis == "GenerateExtension" {
-            self.button_OtherTimes.selected = true
+        else if displayThis == "TimeExtension" {
+            self.genView.button_OtherTimes.selected = true
+            self.genView.button_OtherTimes.hidden = false
             
-            self.label_Time.text = "set expiration"
-            
+            self.genView.label_Time.text = "self destruct after"
+
+            UIView.animateWithDuration(duration, animations: { () -> Void in
+                
+                
+                let textFieldWidth: CGFloat = (UIScreen.mainScreen().bounds.width - 16.0)
+                self.textField.frame = CGRect(x: 8.0, y: 9.0, width: textFieldWidth - 36, height: self.textField.frame.height)
+                
+                
+                }, completion: { (success) -> Void in
+                    
+                    
+            })
             
             UIView.animateWithDuration(duration, animations: { () -> Void in
                 
-                let newHeight: CGFloat = self.pickerView.frame.height + 30
-                let yPosition: CGFloat = self.view.frame.size.height - newHeight - self.baseView.frame.height
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: newHeight)
+                let newHeight: CGFloat = self.genView.pickerView.frame.height + 30
+                let yPosition: CGFloat = UIScreen.mainScreen().bounds.height - newHeight - self.baseView.frame.height
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition - 3, width: UIScreen.mainScreen().bounds.width, height: newHeight)
+       
+                
                 
                 
                 //indicates time from scrollView
-                let labelFrame = CGRect(x: 0.0, y: 5.0, width: self.view.frame.width, height: 30)
-                self.label_Time.frame = labelFrame
-                
+                let labelFrame = CGRect(x: -20, y: 10.0, width: UIScreen.mainScreen().bounds.width - 24, height: 62)
+                self.genView.label_Time.frame = labelFrame
+
+       
                 
                 }, completion: { (completed) -> Void in
                     
                     if completed {
-                        self.labelView_PickerTime.hidden = false
-                        self.pickerView.hidden = false
+                        self.genView.labelView_PickerTime.hidden = false
+                        self.genView.pickerView.hidden = false
+                        
+                        self.genView.label_Time.backgroundColor = UIColor.whiteColor()
                     }
             })
         }
@@ -994,45 +1030,74 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
         
         else if displayThis == "NewCode" {
+            print("NewCode")
             self.tableView.allowsSelection = false
+            self.newCodeSelectedOrCancled = false
             
-            self.button_OtherTimes.selected = true
-            self.button_OtherTimes.hidden = true
+            self.genView.button_OtherTimes.selected = true
+            self.genView.button_OtherTimes.hidden = true
             
             self.tableView.hidden = false
             
             
-            self.label_Time.hidden = false
-            //self.collectionView.hidden = true
+            self.genView.button_Shuffle.hidden = false
             
-            self.pickerView.hidden = true
-            self.labelView_PickerTime.hidden = true
+            self.genView.label_Time.hidden = false
+
+            
+            self.genView.pickerView.hidden = true
+            self.genView.labelView_PickerTime.hidden = true
             
             
             
             UIView.animateWithDuration(duration, animations: { () -> Void in
                 
-                let newHeight: CGFloat = self.baseView_Gen.frame.height + self.baseView.frame.height
-                let yPosition: CGFloat = self.view.frame.size.height - newHeight
-                self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: newHeight)
+                
+                let sharedHeight: CGFloat = 30 + (self.baseView.frame.height  / 2) + (40.0 / 2)
+                print(self.kbSize.height)
+                
+                //45.0: newFrameButtonShuffle.height
+                let newHeightBaseGen: CGFloat = self.baseView_Gen.frame.height + self.baseView.frame.height + 35
+                let newYOriginBaseGen: CGFloat = UIScreen.mainScreen().bounds.height - newHeightBaseGen
+                
+                self.baseView_Gen.frame = CGRect(x: 0.0, y: newYOriginBaseGen, width: UIScreen.mainScreen().bounds.width, height: newHeightBaseGen)
                 
                 
-                let tableFrame = CGRect(x: 0.0, y: self.view.frame.height - (44.0 * 3) - 20, width: self.view.frame.width, height: (44.0 * 3))
-                self.tableView.frame = tableFrame
-
                 
                 //indicates time from scrollView
-                let labelFrame = CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: 60)
-                self.label_Time.frame = labelFrame
-                self.label_Time.text = "select a new codeName"
+                let newLabelFrame = CGRect(x: 32.0, y: 15, width: UIScreen.mainScreen().bounds.width - 64.0, height: sharedHeight)
+                self.genView.label_Time.frame = newLabelFrame
+                self.genView.label_Time.text = "select codeName"
+                
+                self.genView.label_Time.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.33)
+                
+                self.genView.label_Time.layer.borderWidth = 6
+                self.genView.label_Time.layer.borderColor = UIColor.whiteColor().colorWithAlphaComponent(0.67).CGColor
+            
+                
+                
+                let newFrameButtonShuffle = CGRect(x: 32.0, y: newHeightBaseGen - sharedHeight - 15, width: UIScreen.mainScreen().bounds.width - 64.0, height: sharedHeight)
+                self.genView.button_Shuffle.frame = newFrameButtonShuffle
+                
+                self.genView.button_Shuffle.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.33)
+                
+                self.genView.button_Shuffle.layer.borderWidth = 6
+                self.genView.button_Shuffle.layer.borderColor = UIColor.whiteColor().colorWithAlphaComponent(0.67).CGColor
+                
+                
+                
+                
+                let newFrameTableView = CGRect(x: 32.0, y: newYOriginBaseGen + newLabelFrame.height, width: UIScreen.mainScreen().bounds.width - 64, height: self.tableView.bounds.height)
+                self.tableView.frame = newFrameTableView
+
                 
                 
                 
                 }, completion: { (completed) -> Void in
                     
                     if completed {
-                        self.generateCode(self.textField.text!)
-                        self.textField.text = ""
+                        self.generateCode()
+                        
                     }
             })
         }
@@ -1049,7 +1114,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     func showTimePicker() {
         
-        if self.button_OtherTimes.selected {
+        if self.genView.button_OtherTimes.selected {
             self.resetViewsTo("GenerateBase", duration: 0.67)
         }
         else {
@@ -1057,13 +1122,13 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             let hour = floor((self.genView.duration % (24 * 60)) / 60)
             let minute = floor((self.genView.duration % (24 * 60)) % 60)
             
-            self.pickerView.selectRow(Int(day), inComponent: 0, animated: false)
-            self.pickerView.selectRow(Int(hour), inComponent: 1, animated: false)
-            self.pickerView.selectRow(Int(minute), inComponent: 2, animated: false)
+            self.genView.pickerView.selectRow(Int(day), inComponent: 0, animated: false)
+            self.genView.pickerView.selectRow(Int(hour), inComponent: 1, animated: false)
+            self.genView.pickerView.selectRow(Int(minute), inComponent: 2, animated: false)
             
             
             
-            self.resetViewsTo("GenerateExtension", duration: 0.50)
+            self.resetViewsTo("TimeExtension", duration: 1.0)
         }
         
         
@@ -1092,13 +1157,13 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
       
         
         if self.kbIsUp {
-            self.button_OtherTimes.hidden = true
+            self.genView.button_OtherTimes.hidden = true
             UIView.animateWithDuration(0.10, animations: { () -> Void in
                 
                 //90.0: baseView_Gen:: height of this view
                 //1.0: gap between the two
                 let yPosition: CGFloat =  self.baseView.frame.origin.y - self.kbSize.height
-                self.baseView.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView.frame.width, height: self.baseView.frame.height + self.kbSize.height)
+                self.baseView.frame = CGRect(x: 0.0, y: yPosition, width: UIScreen.mainScreen().bounds.width, height: self.baseView.frame.height + self.kbSize.height)
                 
                 if !self.baseViewIsPair {
                     self.baseView_Gen.frame.size.height = 90.0
@@ -1110,6 +1175,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
 
             
+        }
+        
+        
+        if !self.baseViewIsPair {
+            //lower generate base extension from pickerview to smaller view
+            self.resetViewsTo("GenerateBase", duration: 0.0)
+            self.genView.button_OtherTimes.hidden = true
+        
         }
         
         
@@ -1126,17 +1199,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
         
 
-        if !self.baseViewIsPair {
-            //1.0: gap between the two
-            self.button_OtherTimes.hidden = false
-            
+        if !self.baseViewIsPair {            
             if self.shouldAdjustFirstResponder {
                 UIView.animateWithDuration(0.33, animations: { () -> Void in
                     
                     //90.0: baseView_Gen:: height of this view
                     //1.0: gap between the two
                     let yPosition: CGFloat =  self.view.frame.height - (self.baseView.frame.height + 90 + 1)
-                    self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: 90)
+                    self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: UIScreen.mainScreen().bounds.width, height: 90)
                 })
             }
             
@@ -1160,16 +1230,27 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         
 
+        //resign textField
+        if self.textField.isFirstResponder() {
+            self.textField.resignFirstResponder()
+        }
         
         
         //pair
         if self.baseViewIsPair {
         
+            
+            if self.appDelegate.codeNames.contains(self.textField.text!) {
+                
+                self.presentViewController(self.alerts.alertsByType("pairingToTheirCode"), animated: true, completion: nil)
+        
             //present alert if invalid
-            if self.isValidCode(self.textField.text!) {
+            } else if self.isValidCode(self.textField.text!) {
+                
                 self.pairWithCode(self.textField.text!)
                 self.textField.text = ""
             }
+
         }
         
             
@@ -1190,11 +1271,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
         
-        //resign textField
-        if self.textField.isFirstResponder() {
-            self.textField.resignFirstResponder()
-        }
-        
+  
 
         
         return true
@@ -1216,16 +1293,17 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //pair view
         if self.baseViewIsPair {
             self.textField.placeholder = "Enter Connection Code"
-        }
+            
+            //limit pairing attempts to 24 per day
+            if self.appDelegate.numPairAttemptsInLast24 >= 10 {
+                self.presentViewController(self.alerts.alertsByType("pairingLimitExceeded"), animated: true, completion: nil)
+                return false
+            }
         
         
-        //.selected: pickerView (for duration) is in view
-        if self.button_OtherTimes.selected {
-            self.shouldBecomeFirstResponder = true
-            self.resetViewsTo("GenerateBase", duration: 0.0)
-            return false
+        } else  {
         }
-    
+
         return true
     }
     
@@ -1320,16 +1398,18 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         if tableView.tag == 0 {
-            print("did select called")
+
             if !self.textField.isFirstResponder() {
                 self.performSegueWithIdentifier("enterConvo", sender: self)
+            }
+            else {
+                self.inboxTable.deselectRowAtIndexPath(indexPath, animated: false)
             }
         }
             
         
         else {
             self.codeName = self.newCodeOptions[indexPath.row]
-            self.newCodeSelected = true
             
             self.saveNewCode(self.codeName)
             
@@ -1562,10 +1642,16 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+    
+
+        
+        
         
         self.queryCheck.cancel()
         self.queryConnection.cancel()
         self.queryAllCodes.cancel()
+        
+        self.resetViewsTo("PairView", duration: 0.0)
     }
     
     
@@ -1597,29 +1683,28 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
         if !input.isEmpty {
             
-            //code input must be at least 4
+                //code input must be at least 4
             if input.characters.count < 4  {
                 self.presentViewController(self.alerts.alertsByType("short"), animated: true, completion: nil)
                 return false
-            }
+            
                 
                 
                 //code input cannot be greater than 17
-            else if input.characters.count > 17 {
+            } else if input.characters.count > 17 {
                 self.presentViewController(self.alerts.alertsByType("long"), animated: true, completion: nil)
                 return false
-            }
+            
                 
                 
                 //returns false if invalid punctuation used (also rejects too many spaces)
-            else if self.utilities.invalidPunc(input) {
+            } else if self.utilities.invalidPunc(input) {
                 self.presentViewController(self.alerts.alertsByType("punc"), animated: true, completion: nil)
                 return false
-            }
-                
-                
+            
+
                 //valid codes with text in textField will fall to this clause
-            else {
+            } else {
                 return true
             }
             

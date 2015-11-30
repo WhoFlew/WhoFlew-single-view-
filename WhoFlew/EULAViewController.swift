@@ -16,10 +16,19 @@ class EULAViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-       self.EULAField.scrollRangeToVisible(NSMakeRange(0, 0))
+        self.EULAField.scrollsToTop = true
+
 
         
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        
+        let range = NSMakeRange(0, 0)
+        self.EULAField.scrollRangeToVisible(range)
     }
 
     override func didReceiveMemoryWarning() {

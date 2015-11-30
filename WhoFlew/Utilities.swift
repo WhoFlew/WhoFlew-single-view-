@@ -55,7 +55,7 @@ class Utilities {
         let intervalDays: Double = intervalHours / 24
         let intervalWeeks: Double = interval / self.weekSeconds
         let intervalMonth: Double = interval / self.weekSeconds * (31 / 7)
-        
+        print(intervalMinutes)
         
         if interval <= 0   {
             return "expired"
@@ -79,11 +79,11 @@ class Utilities {
         }
             
         else if (intervalHours < 24) && (intervalHours > 1) {
-            return "h: \(Int(floor(intervalHours))) m: \(Int(floor(intervalMinutes)))"
+            return "h: \(Int(floor(intervalHours))) m: \(Int(round(intervalMinutes)))"
         }
             
         else if (intervalMinutes <= 60) && (intervalMinutes > 0){
-            return "minutes: \(Int(floor(intervalMinutes)))"
+            return "\(Int(round(intervalMinutes))) minutes"
         }
             
         else {

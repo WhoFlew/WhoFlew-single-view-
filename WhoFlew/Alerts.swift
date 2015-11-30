@@ -137,7 +137,20 @@ class Alerts {
             return alert
         }
             
+        //cannot pair to more than 10 codes in 24 hours
+        else if alertType == "pairingLimitExceeded" {
+            let alert = UIAlertController(title: "☝️", message: "you have reached the pairing limit.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
             
+            return alert
+        }
+            //cannot pair to codes in their own inbow
+        else if alertType == "pairingToTheirCode" {
+            let alert = UIAlertController(title: "☝️", message: "looks like this codeName is in your inbox already", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(dismiss)
+            
+            return alert
+        }
             
         else {
             let alert = UIAlertController(title: "PiGone", message: "meet our mascot, PiGone the carrier pigeon", preferredStyle: UIAlertControllerStyle.Alert)

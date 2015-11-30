@@ -8,9 +8,8 @@
 
 import Foundation
 import UIKit
-import Parse
-import Bolts
 import CoreData
+
 
 
 class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -33,7 +32,7 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
     
     
     
-    var genView: UIView!
+    var baseViewGen: UIView!
     
 
     var label_Time: UILabel!
@@ -43,7 +42,7 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
     
     
     var button_Gen: UIView = UIButton(type: UIButtonType.ContactAdd) as UIView
-    
+    var button_Shuffle: UIButton!
     
     
     //pickerview with 3 componenets (hour, day, min)
@@ -63,7 +62,7 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
     
     var codeName: String = "PiGone"
     //time limit for code, in minutes
-    var duration: Double = 20.0
+    var duration: Double = (4 * 60.0) + 40.0
     
     
     
@@ -74,26 +73,22 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
     
     func setPickerViewContent() {
         
-
+        let pickerWidth: CGFloat = frame.width + 25
         
         let pickerFrame = CGRect(x: -25.0, y: 30.0, width: frame.width, height: 162.0)
         self.pickerView = UIPickerView(frame: pickerFrame)
         self.pickerView.delegate = self
         self.pickerView.dataSource = self
         
+
         
         self.pickerView.selectRow(4, inComponent: 1, animated: false)
         self.pickerView.selectRow(40, inComponent: 2, animated: false)
+
         
-        
-        
-        //30: width of self.button_OtherTimes
-        let pickerLabelHeight: CGFloat = ((self.pickerView.frame.height / 2.0) - (self.pickerView.rowSizeForComponent(0).height / 2.0))
-        
-        
-        let rectDays = CGRect(x: -5.0, y: 0.0, width: frame.width / 3.0, height: pickerLabelHeight)
-        let rectHours = CGRect(x: frame.width / 3.0, y: 0.0, width: frame.width / 3.0, height: pickerLabelHeight)
-        let rectMins = CGRect(x: 2 * (frame.width / 3.0), y: 0.0, width: frame.width / 3.0, height: pickerLabelHeight)
+        let rectDays = CGRect(x: 8.0, y: 0.0, width: pickerWidth / 3.0, height: pickerFrame.height)
+        let rectHours = CGRect(x: (pickerWidth / 3.0) + 5.0, y: 0.0, width: pickerWidth / 3.0, height: pickerFrame.height)
+        let rectMins = CGRect(x: (2 * (pickerWidth / 3.0) - 5.0) , y: 0.0, width: pickerWidth / 3.0, height: pickerFrame.height)
         
         self.labelDays = UILabel(frame: rectDays)
         self.labelHours = UILabel(frame: rectHours)
@@ -110,12 +105,14 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
         
         
         
-        self.labelView_PickerTime = UIView(frame: CGRect(x: 20.0, y: 77.0, width: frame.width, height: pickerLabelHeight))
-        self.labelView_PickerTime.backgroundColor = self.appDelegate.allColorsArray[0]
+        self.labelView_PickerTime = UIView(frame: CGRect(x: 0.0, y: 30.0, width: frame.width, height: pickerFrame.height))
+        self.labelView_PickerTime.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.33)
         
         self.labelView_PickerTime.addSubview(self.labelDays)
         self.labelView_PickerTime.addSubview(self.labelHours)
         self.labelView_PickerTime.addSubview(self.labelMins)
+        
+
     }
     
     
@@ -142,9 +139,19 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
         
         //offsets the y Origin of the view so it is underneath nav bar
         let offSetY: CGFloat = (self.appDelegate.navBarSize.height + self.appDelegate.statusBarSize.height) - (180 + frame.height)
-        self.genView = UIView(frame: CGRect(x: 0.0, y: offSetY, width: frame.width, height: 180 + frame.height))
+        self.baseViewGen = UIView(frame: CGRect(x: 0.0, y: offSetY, width: frame.width, height: 180 + frame.height))
         self.backgroundColor = self.appDelegate.allColorsArray[1]
         
+        
+        //genViewExtendedHeight: value set in inboxVC
+        let shuffleButtonFrame = CGRect(x: 32.0, y: 0.0, width: UIScreen.mainScreen().bounds.width - 64.0, height: 30)
+        self.button_Shuffle = UIButton(frame: shuffleButtonFrame)
+        
+        self.button_Shuffle.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.67)
+        self.button_Shuffle.setAttributedTitle(NSAttributedString(string: "shuffle"), forState: UIControlState.Normal)
+        
+        self.button_Shuffle.layer.masksToBounds = true
+        self.button_Shuffle.layer.cornerRadius = 18.0
         
         
         
@@ -152,13 +159,17 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
         
         
         //indicates time from scrollView
-        let labelFrame = CGRect(x: 0.0, y: 0, width: frame.width, height: 60)
+        let labelFrame = CGRect(x: 0.0, y: 0, width: frame.width - 64, height: 60)
         self.label_Time = UILabel(frame: labelFrame)
         
         self.label_Time.text = "set expiration"
         self.label_Time.numberOfLines = 2
         self.label_Time.lineBreakMode = NSLineBreakMode.ByWordWrapping
         self.label_Time.textAlignment = NSTextAlignment.Center
+        
+        self.label_Time.layer.masksToBounds = true
+        self.label_Time.layer.cornerRadius = 18.0
+        
         
         self.label_Time.backgroundColor = self.appDelegate.allColorsArray[1]
         
@@ -169,37 +180,53 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
         
         
         //button for more time options
-        self.button_OtherTimes = UIButton(frame: CGRect(x: frame.width - 30, y: 0.0, width: 30, height: self.label_Time.frame.height / 2))
-        
+        self.button_OtherTimes = UIButton(frame: CGRect(x: frame.width - 30, y: 0.0, width: 30, height: 30))
+
 
         
         
         //highlighted
-        let highlightedAttributedTitle = NSAttributedString(string: "...",
+        let highlightedAttributedTitle = NSAttributedString(string: ". . .",
             attributes: [NSForegroundColorAttributeName : UIColor.lightGrayColor()])
         self.button_OtherTimes.setAttributedTitle(highlightedAttributedTitle, forState: UIControlState.Highlighted)
         
         
         //selected
-        let selectedAttributedTitle = NSAttributedString(string: "...",
+        let selectedAttributedTitle = NSAttributedString(string: ". . .",
             attributes: [NSForegroundColorAttributeName : UIColor.whiteColor()])
         self.button_OtherTimes.setAttributedTitle(selectedAttributedTitle, forState: UIControlState.Selected)
         
         
         //normal
-        let normalAttributedTitle = NSAttributedString(string: ":::",
+        let normalAttributedTitle = NSAttributedString(string: ": : :",
             attributes: [NSForegroundColorAttributeName : UIColor.whiteColor()])
         self.button_OtherTimes.setAttributedTitle(normalAttributedTitle, forState: UIControlState.Normal)
         
         
-        
-        
 
-        
         
 
     }
 
+    
+    
+    func addSubviesToBase() {
+        
+        self.baseViewGen.addSubview(self.labelView_PickerTime)
+        //pickerview time with label
+        self.baseViewGen.addSubview(self.pickerView)
+        
+        self.baseViewGen.addSubview(self.label_Time)
+        
+        
+        //toggles between two time views
+        self.baseViewGen.addSubview(self.button_OtherTimes)
+        
+        
+        self.baseViewGen.addSubview(self.button_Shuffle)
+        self.button_Shuffle.hidden = true
+        
+    }
     
     
     
@@ -271,15 +298,9 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
         
         let days: Int = pickerView.selectedRowInComponent(0)
         let hours: Int = pickerView.selectedRowInComponent(1)
-        let minutes: Int = pickerView.selectedRowInComponent(2)
+        let minutes: Int = pickerView.selectedRowInComponent(2) 
         
-        //minimum is 5 minutes
-        if days == 0
-            && hours == 0
-            && minutes < 5 {
-            self.pickerView.selectRow(5, inComponent: 2, animated: true)
-        }
-        
+
         if component == 0 {
 
             if row == 1 {
@@ -312,9 +333,16 @@ class GenView: UIView, UIPickerViewDelegate, UIPickerViewDataSource, UIScrollVie
         
 
         self.duration = Double((days * 24 * 60) + (hours * 60) + (minutes))
-        print(self.duration)
+
         
-        
+        //minimum is 5 minutes
+        if days == 0
+            && hours == 0
+            && minutes < 5 {
+                self.pickerView.selectRow(5, inComponent: 2, animated: true)
+                self.duration = 5.0
+        }
+
     }
     
     

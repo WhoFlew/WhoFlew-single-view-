@@ -24,6 +24,9 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     //textView and sendButton for new messages
     @IBOutlet weak var button_Send: UIButton!
     @IBOutlet weak var textView: UITextView!
+    //image fills inbox when empty
+    let imageUnderKb = UIImageView(image: UIImage(named: "1080PiGone.png"))
+    
     var kbSize: CGSize = CGSize()
     var kbIsUp: Bool = false
     
@@ -67,6 +70,8 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.tableView.rowHeight = UITableViewAutomaticDimension
         self.tableView.allowsSelection = false
     
+        self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissMode.Interactive
+        self.tableView.separatorColor = UIColor.whiteColor()
         
         self.button_Send.hidden = true
         self.label_ThinBorder.hidden = true
@@ -75,7 +80,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.label_Cover.layer.cornerRadius = 12
         self.label_Cover.layer.masksToBounds = true
         
-        
+
         self.textView.layer.cornerRadius = 9
         self.textView.layer.masksToBounds = true
         
@@ -85,9 +90,28 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.textView.editable = true
         self.textView.autocorrectionType = UITextAutocorrectionType.Yes
         
+        
+
+
+        
+        
         //self.textView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.baseView_Send.translatesAutoresizingMaskIntoConstraints = false
         
+
+        let imageLenSquare: CGFloat = UIScreen.mainScreen().bounds.width * 0.75
+        self.imageUnderKb.frame = CGRectMake(0, UIScreen.mainScreen().bounds.height - imageLenSquare, imageLenSquare, imageLenSquare)
+        self.imageUnderKb.clipsToBounds = true
+        
+        
+        let whiteCoverView = UIView(frame: CGRect(x: 0, y: UIScreen.mainScreen().bounds.height - (imageLenSquare * 2), width: UIScreen.mainScreen().bounds.width, height: imageLenSquare * 2))
+        whiteCoverView.backgroundColor = UIColor.whiteColor()
+        
+        
+        self.view.insertSubview(self.imageUnderKb, atIndex: 0)
+        self.view.insertSubview(whiteCoverView, atIndex: 0)
+      
+
     }
     
 
@@ -97,13 +121,21 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         super.viewDidAppear(animated)
 
         
-    
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardShow:", name: UIKeyboardDidShowNotification, object: nil)
+        
+
+        
+        let notifcaitonCenter = NSNotificationCenter.defaultCenter()
+        
+        notifcaitonCenter.addObserver(self, selector: "adjustKeyboard:", name: UIKeyboardWillHideNotification, object: nil)
+        
+        notifcaitonCenter.addObserver(self, selector: "adjustKeyboard:", name: UIKeyboardWillChangeFrameNotification, object: nil)
         
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardDidHideNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyBoardHide:", name: UIKeyboardWillHideNotification, object: nil)
+        notifcaitonCenter.addObserver(self, selector: "queryMessagesClass", name: "NotificationIdentifierNewMessage", object: nil)
+
+        
+        notifcaitonCenter.addObserver(self, selector: "screenShot", name: UIApplicationUserDidTakeScreenshotNotification, object: nil)
+        
         
         
         
@@ -137,24 +169,14 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         self.messageArray = ["verifying access..."]
         self.orderArray = [0]
         
+        self.tableView.reloadData()
+        
 
+        
         self.queryConnection.cancel()
         self.queryMessages.cancel()
         
         self.queryConnectionClass()
-        self.tableView.reloadData()
-        
-       
-        
-        //scrolls tableView to show the last message in view
-        let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
-        self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
-        
-        
-        
-        
-        
-        
         
     }
     
@@ -261,10 +283,22 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 }
                 
                 self.tableView.reloadData()
+                
+                
+                
+                if self.tableView.numberOfRowsInSection(0) > 0 {
+                    //scrolls tableView to show the last message in view
+                    let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+                    self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+                }
+                
+
             }
         }
         
     }
+    
+
     
     
     
@@ -287,50 +321,14 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
             self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
             
-            let messageTable = PFObject(className: "Messages")
-            
-            messageTable.setValue(self.userOrder, forKey: "order")
-            messageTable.setValue(textInput, forKey: "message")
-            messageTable.setValue(self.codeId, forKey: "codeId")
-
-            
-            messageTable.saveInBackgroundWithBlock { (sucess: Bool, errorSave: NSError?) -> Void in
-                
-                if let error = errorSave {
-                    
-                    if error.code == 100 {
-                        self.appDelegate.networkSignal = false
-                    }
-                    else {
-                        self.appDelegate.networkSignal = true
-                    }
-                    self.messageArray.removeLast()
-                    self.messageArray.removeLast()
-                }
-                    
-                else if sucess {
-                    self.appDelegate.networkSignal = true
-                    //array indicating whether or not inbox should allow conversation to be cleared
-
-                    
-                }
-                else {
-                    //unclear what would fall to this case
-                    //but it would logically follow to remove the message
-                    self.messageArray.removeLast()
-                    self.messageArray.removeLast()
-                }
-                
-                //self.messageSending = false
-                self.numMessagesWaiting--
-                //checkHere
-                
-                
-                self.tableView.reloadData()
-            }
             
             
-
+            self.sendPush()
+            
+            
+            
+            self.saveMessage(textInput)
+            
         }
         
         
@@ -350,8 +348,106 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     
+    func sendPush() {
+        
+        
+        var pairsToPush = [(String)]()
+        for userId in self.pairs {
+            if userId != self.appDelegate.userName && userId != "PiGone" {
+                pairsToPush.append(userId)
+            }
+        }
+        
+        
+        if pairsToPush.count >= 1 {
+            
+            //send push that says a new user joined
+            let uQuery: PFQuery = PFUser.query()!
+            uQuery.whereKey("username", containedIn: pairsToPush)
+            
+            let pushQuery: PFQuery = PFUser.query()!
+            pushQuery.whereKey("user", matchesQuery: uQuery)
+            
+            let push: PFPush = PFPush()
+            push.setQuery(pushQuery)
+            
+            push.setMessage("codeName: \(self.codeName)")
+            
+            push.sendPushInBackgroundWithBlock({ (sucess, errorPush: NSError?) -> Void in
+                
+                if let error = errorPush {
+                    
+                    if error.code == 100 {
+                        //internet signal lost
+                    
+                    }
+                }
+                else if sucess {
+                }
+                
+            })
+        }
+    }
     
     
+    
+    
+    
+    
+    
+    
+    func saveMessage(textInput: String) {
+        
+        let messageTable = PFObject(className: "Messages")
+        
+        messageTable.setValue(self.userOrder, forKey: "order")
+        messageTable.setValue(textInput, forKey: "message")
+        messageTable.setValue(self.codeId, forKey: "codeId")
+        
+        
+        messageTable.saveInBackgroundWithBlock { (sucess: Bool, errorSave: NSError?) -> Void in
+            
+            if let error = errorSave {
+                
+                if error.code == 100 {
+                    self.appDelegate.networkSignal = false
+                }
+                else {
+                    self.appDelegate.networkSignal = true
+                }
+                self.messageArray.removeLast()
+                self.messageArray.removeLast()
+            }
+                
+            else if sucess {
+                self.appDelegate.networkSignal = true
+                //array indicating whether or not inbox should allow conversation to be cleared
+                
+                
+            }
+            else {
+                //unclear what would fall to this case
+                //but it would logically follow to remove the message
+                self.messageArray.removeLast()
+                self.messageArray.removeLast()
+            }
+            
+            //self.messageSending = false
+            self.numMessagesWaiting--
+            //checkHere
+            
+            
+            self.tableView.reloadData()
+        }
+    }
+    
+    
+
+    
+    
+    func screenShot() {
+        print("screen shot")
+    }
     
     
     
@@ -415,29 +511,45 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     
-    
-    
 
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    func keyBoardShow(notification: NSNotification) {
-        
-        var info: Dictionary = notification.userInfo!
-        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
-        
-        
-        if !self.kbIsUp {
 
+    
+    func adjustKeyboard(notification: NSNotification) {
+        let userInfo = notification.userInfo!
+        
+        let keyboardScreenEndFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+        let keyboardViewEndFrame = view.convertRect(keyboardScreenEndFrame, fromView: view.window)
+        
+        if notification.name == UIKeyboardWillHideNotification {
+            
+            if !self.textView.hasText() {
+                
+                self.label_Cover.hidden = false
+                
+                self.button_Send.hidden = true
+                self.label_ThinBorder.hidden = true
+            }
+
+
+    
+            
+            UIView.animateWithDuration(1.2, animations: { () -> Void in
+
+                
+                self.view.frame = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.width, height: UIScreen.mainScreen().bounds.height)
+
+                
+                }, completion: { (sucess) -> Void in
+                    
+            })
+                
+            
+            
+        } else {
+            
             self.label_Cover.hidden = true
             
             self.button_Send.hidden = false
@@ -446,69 +558,45 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
 
             
             UIView.animateWithDuration(0.1, animations: {
+
                 
-                self.view.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height - self.kbSize.height)
+                self.view.frame = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.width, height: UIScreen.mainScreen().bounds.height - keyboardViewEndFrame.height)
+
                 
-            })
-            self.kbIsUp = true
-            
-        }
-        else {
-            //scrolls tableView to show the last message in view
-            let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
-            self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
-            
-            
-            
-            self.tableView.reloadData()
+                
+                }, completion: { (success) -> Void in
+                    if success {
+                        
+                        
+                        if self.tableView.numberOfRowsInSection(0) > 0 {
+                            //scrolls tableView to show the last message in view
+                            let lastIndex = NSIndexPath(forRow: self.tableView.numberOfRowsInSection(0) - 1, inSection: 0)
+                            self.tableView.scrollToRowAtIndexPath(lastIndex, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+                        }
+
+                     
+                
+                    }
+                
+                })
         }
         
+
+            
     }
     
-    
-    
-    func keyBoardHide(notification: NSNotification) {
-        
-        var info: Dictionary = notification.userInfo!
-        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
         
         
-        if !self.textView.hasText() {
-
-            self.label_Cover.hidden = false
-            
-            self.button_Send.hidden = true
-            self.label_ThinBorder.hidden = true
-        }
-
-        if self.kbIsUp {
-            
-            self.view.frame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height + self.kbSize.height)
-
-
-            self.kbIsUp = false
-        }
         
-        
+    
+    
+    
+    
+    
 
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    func textViewDidChange(textView: UITextView){
-    }
-    
     
     func textViewShouldBeginEditing(textView: UITextView) -> Bool {
-        
+    
 
         if self.appDelegate.noReply.contains(self.codeName) {
             return false
@@ -566,8 +654,15 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
         super.viewDidDisappear(animated)
         
         
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+        
+        
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "NotificationIdentifierNewMessage", object: nil)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationUserDidTakeScreenshotNotification, object: nil)
+        
         
         self.queryConnection.cancel()
         self.queryMessages.cancel()

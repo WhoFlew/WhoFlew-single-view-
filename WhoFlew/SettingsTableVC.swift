@@ -38,7 +38,7 @@ class SettingsTableVC: UITableViewController {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         if section == 0 {
-            return 2
+            return 3
         }
         else if section == 1 {
             return 5
@@ -68,13 +68,19 @@ class SettingsTableVC: UITableViewController {
         if indexPath.section == 0 {
             if indexPath.row == 0 {
                 let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
-                cell.textLabel!.text = "Infinite Connection: Enter Suffix"
+                cell.textLabel!.text = "Infinite Connection: Coming Soon!"
                 return cell
             }
             
             else if indexPath.row == 1 {
                 let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
-                cell.textLabel!.text = "Inbox Size Limit: 10"
+                cell.textLabel!.text = "Inbox Capacity: 10 Connections"
+                return cell
+            }
+                
+            else if indexPath.row == 2 {
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                cell.textLabel!.text = "Pair Limit: 10 Codes/Day"
                 return cell
             }
                 
@@ -141,6 +147,7 @@ class SettingsTableVC: UITableViewController {
         
         
         tableView.deselectRowAtIndexPath(indexPath, animated: false)
+        let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
         
         //"Details"
         if indexPath.section == 0 {
@@ -150,15 +157,22 @@ class SettingsTableVC: UITableViewController {
                 
             else if indexPath.row == 1 {
                 //inbox size limit
-                
-                let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
 
-                let alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user.", preferredStyle: UIAlertControllerStyle.Alert)
+                let alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user right now.", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(dismiss)
                 
                 self.presentViewController(alert, animated: true, completion: nil)
 
             }
+                
+            else if indexPath.row == 2 {
+                
+                let alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, you can only pair with 10 codes oer day right now.", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(dismiss)
+                
+                self.presentViewController(alert, animated: true, completion: nil)
+            }
+                
                 
             else {
                 //nickNames coming soon
@@ -184,8 +198,10 @@ class SettingsTableVC: UITableViewController {
                     self.presentViewController(messageComposeVC, animated: true, completion: nil)
                 } else {
                     // Let the user know if his/her device isn't able to send text messages
-                    let errorAlert = UIAlertView(title: "Cannot Send Text Message", message: "Your device is not able to send text messages.", delegate: self, cancelButtonTitle: "OK")
-                    errorAlert.show()
+                    let errorAlert = UIAlertController(title: "☝️ Cannot Send Text Message", message: "Your device is not able to send text messages.", preferredStyle: UIAlertControllerStyle.Alert)
+                    errorAlert.addAction(dismiss)
+                    self.presentViewController(errorAlert, animated: true, completion: nil)
+
                 }
             }
               

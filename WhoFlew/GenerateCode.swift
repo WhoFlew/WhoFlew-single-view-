@@ -8,9 +8,10 @@
 
 import UIKit
 import CoreData
+
+import Foundation
 import Parse
 import Bolts
-import Foundation
 
 class GenerateCode {
     
@@ -18,9 +19,9 @@ class GenerateCode {
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
     
-    let adjectives = ["purple","purple","purple","purple","purple","purple","pink","sweet","honey","orange","silver","blue","red","blue","red","secret","secret", "cool", "popping", "dark", "light", "dank", "green", "teal", "black", "free", "buzz", "pure", "white", "jumbo", "floating", "baked", "high", "orange","silver","blue","low", "proud", "fair", "calm", "bold", "wild", "deep", "grand", "sleek","blue","red", "hot", "cold", "sweet", "sweet", "raw", "liberty", "frosty", "clean", "gold", "giant", "fast", "slow", "crisp", "hazy", "clear", "bright", "shinning", "rebel", "rebel","rebel","classic", "potent", "alaskan", "power", "passion", "loving", "tender", "bald", "short", "angry", "happy", "sharp", "dumb", "loud", "silent", "good","lazy", "loud","loud","loud","loud","funny","funny","funny","smart","smart","hairy","hairy"]
+    let adjectives = ["abc","xyz","purple","purple","purple","purple","purple","purple","pink","sweet","honey","orange","silver","blue","red","blue","red","secret","secret", "cool", "popping", "dark", "light", "dank", "green", "teal", "black", "free", "buzz", "pure", "white", "jumbo", "floating", "baked", "high", "orange","silver","blue","low", "proud", "fair", "calm", "bold", "wild", "deep", "grand", "sleek","blue","red", "hot", "cold", "sweet", "sweet", "raw", "liberty", "frosty", "clean", "gold", "giant", "fast", "slow", "crisp", "hazy", "clear", "bright", "shinning", "rebel", "rebel","rebel","classic", "potent", "alaskan", "power", "passion", "loving", "tender", "bald", "short", "angry", "happy", "sharp", "dumb", "loud", "silent", "good","lazy", "loud","loud","loud","loud","funny","funny","funny","smart","smart","hairy","hairy"]
     
-    let nouns = ["monkey", "oak","oak","oak", "sleigh", "rider","monkey", "rebel", "rider","monkey", "rebel", "rider","box","hawk", "code", "cobra", "lion", "den", "basement", "trip", "seal", "man", "night", "knight", "eagle", "camp", "sand", "bee", "grass", "clouds", "cloud","smoke", "bush", "moon", "moons", "kite", "kites", "fire", "ice", "mountain", "design", "snake", "eye", "home", "lake", "joke", "key", "keys", "lock", "door", "star", "stars", "sun", "burn", "book", "books", "bag", "bags", "flamingo", "lady", "matrix", "pandas", "panda", "snow", "hammer", "ball", "hammers", "river", "rivers", "grape", "grapes", "apple", "apples", "peach", "pear", "kiwi", "zebra", "ghost", "king", "queen", "bishop", "president", "computer", "phone", "fish", "mario", "robot", "gator", "warrior", "bullet", "spring", "sky", "haze", "titan", "captain", "goo", "beast", "dragon", "flower", "valley", "band", "spark", "fruit", "kiss", "robot", "robot"]
+    let nouns = ["abc","xyz","monkey", "oak","oak","oak", "sleigh", "rider","monkey", "rebel", "rider","monkey", "rebel", "rider","box","hawk", "code", "cobra", "lion", "den", "basement", "trip", "seal", "man", "night", "knight", "eagle", "camp", "sand", "bee", "grass", "clouds", "cloud","smoke", "bush", "moon", "moons", "kite", "kites", "fire", "ice", "mountain", "design", "snake", "eye", "home", "lake", "joke", "key", "keys", "lock", "door", "star", "stars", "sun", "burn", "book", "books", "bag", "bags", "flamingo", "lady", "matrix", "pandas", "panda", "snow", "hammer", "ball", "hammers", "river", "rivers", "grape", "grapes", "apple", "apples", "peach", "pear", "kiwi", "zebra", "ghost", "king", "queen", "bishop", "president", "computer", "phone", "fish", "mario", "robot", "gator", "warrior", "bullet", "spring", "sky", "haze", "titan", "captain", "goo", "beast", "dragon", "flower", "valley", "band", "spark", "fruit", "kiss", "robot", "robot"]
     
     
     let emoticons = ["👌","☝️","👍","👎","✌️","🍁","🌴","🍄","⚡️","👅","🔥","🇺🇸","🇬🇧","🇯🇵","💯","🙈","💜","😎","💨","💤","💙","💚","❄️","🍒"]

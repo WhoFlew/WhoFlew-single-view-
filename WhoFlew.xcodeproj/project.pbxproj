@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C0648C01C0BFC1A00D46140 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C0648BD1C0BFC1A00D46140 /* Bolts.framework */; };
+		9C0648C11C0BFC1A00D46140 /* Parse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C0648BE1C0BFC1A00D46140 /* Parse.framework */; };
+		9C0648C21C0BFC1A00D46140 /* ParseUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C0648BF1C0BFC1A00D46140 /* ParseUI.framework */; };
 		9C2806DF1C04DDD70072CFC2 /* EULAViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2806DE1C04DDD70072CFC2 /* EULAViewController.swift */; };
 		9C2806E31C04E12D0072CFC2 /* MessageComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2806E21C04E12D0072CFC2 /* MessageComposer.swift */; };
 		9C2BFE021BFE3E9900CFE6D8 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C2BFE011BFE3E9900CFE6D8 /* Utilities.swift */; };
-		9C2BFE291BFE466200CFE6D8 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE281BFE466200CFE6D8 /* libsqlite3.dylib */; };
-		9C2BFE2B1BFE466B00CFE6D8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE2A1BFE466B00CFE6D8 /* libz.dylib */; };
 		9C2BFE2D1BFE467400CFE6D8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE2C1BFE467400CFE6D8 /* CoreGraphics.framework */; };
 		9C2BFE2F1BFE468500CFE6D8 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE2E1BFE468500CFE6D8 /* CoreLocation.framework */; };
 		9C2BFE321BFE468E00CFE6D8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE301BFE468E00CFE6D8 /* CoreFoundation.framework */; };
@@ -22,9 +23,6 @@
 		9C2BFE3B1BFE46A500CFE6D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE3A1BFE46A500CFE6D8 /* Security.framework */; };
 		9C2BFE3D1BFE46AB00CFE6D8 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE3C1BFE46AB00CFE6D8 /* AudioToolbox.framework */; };
 		9C2BFE3F1BFE46B200CFE6D8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE3E1BFE46B200CFE6D8 /* SystemConfiguration.framework */; };
-		9C2BFE431BFE47C400CFE6D8 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE401BFE47C400CFE6D8 /* Bolts.framework */; };
-		9C2BFE441BFE47C400CFE6D8 /* Parse.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE411BFE47C400CFE6D8 /* Parse.framework */; };
-		9C2BFE451BFE47C400CFE6D8 /* ParseUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C2BFE421BFE47C400CFE6D8 /* ParseUI.framework */; };
 		9C4297541BF92788002058F7 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4297531BF92787002058F7 /* MessageTableViewCell.swift */; };
 		9C5B72D41C0243FE008A838D /* TimeSlideCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B72D31C0243FE008A838D /* TimeSlideCollectionViewCell.swift */; };
 		9C5B72D61C0244D4008A838D /* InboxVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B72D51C0244D4008A838D /* InboxVC.swift */; };
@@ -40,6 +38,12 @@
 		9C8A4B251BF795C90016FBDD /* WhoFlewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B241BF795C90016FBDD /* WhoFlewTests.swift */; };
 		9C8A4B311BF7B8100016FBDD /* DialogueVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B301BF7B8100016FBDD /* DialogueVC.swift */; };
 		9C8A4B351BF7DBBE0016FBDD /* SettingsTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */; };
+		9CC2EB551C0BDFD300B1EAA1 /* 1080PiGone.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CC2EB541C0BDFD300B1EAA1 /* 1080PiGone.png */; };
+		9CC2EB5C1C0BECFF00B1EAA1 /* 58PiGone.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CC2EB571C0BECFF00B1EAA1 /* 58PiGone.png */; };
+		9CC2EB5D1C0BECFF00B1EAA1 /* 80 PiGone.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CC2EB581C0BECFF00B1EAA1 /* 80 PiGone.png */; };
+		9CC2EB5E1C0BECFF00B1EAA1 /* 87 PiGone.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CC2EB591C0BECFF00B1EAA1 /* 87 PiGone.png */; };
+		9CC2EB5F1C0BECFF00B1EAA1 /* 120 PiGone.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CC2EB5A1C0BECFF00B1EAA1 /* 120 PiGone.png */; };
+		9CC2EB601C0BECFF00B1EAA1 /* 180 PiGone.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CC2EB5B1C0BECFF00B1EAA1 /* 180 PiGone.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,11 +57,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9C0648BD1C0BFC1A00D46140 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = "<group>"; };
+		9C0648BE1C0BFC1A00D46140 /* Parse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Parse.framework; sourceTree = "<group>"; };
+		9C0648BF1C0BFC1A00D46140 /* ParseUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseUI.framework; sourceTree = "<group>"; };
 		9C2806DE1C04DDD70072CFC2 /* EULAViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EULAViewController.swift; sourceTree = "<group>"; };
 		9C2806E21C04E12D0072CFC2 /* MessageComposer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageComposer.swift; sourceTree = "<group>"; };
 		9C2BFE011BFE3E9900CFE6D8 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
-		9C2BFE281BFE466200CFE6D8 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
-		9C2BFE2A1BFE466B00CFE6D8 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		9C2BFE2C1BFE467400CFE6D8 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		9C2BFE2E1BFE468500CFE6D8 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		9C2BFE301BFE468E00CFE6D8 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -68,9 +73,6 @@
 		9C2BFE3A1BFE46A500CFE6D8 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9C2BFE3C1BFE46AB00CFE6D8 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		9C2BFE3E1BFE46B200CFE6D8 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		9C2BFE401BFE47C400CFE6D8 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bolts.framework; sourceTree = "<group>"; };
-		9C2BFE411BFE47C400CFE6D8 /* Parse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Parse.framework; sourceTree = "<group>"; };
-		9C2BFE421BFE47C400CFE6D8 /* ParseUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ParseUI.framework; sourceTree = "<group>"; };
 		9C4297531BF92787002058F7 /* MessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
 		9C5B72D31C0243FE008A838D /* TimeSlideCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeSlideCollectionViewCell.swift; sourceTree = "<group>"; };
 		9C5B72D51C0244D4008A838D /* InboxVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = InboxVC.swift; path = ../InboxVC.swift; sourceTree = "<group>"; };
@@ -90,6 +92,12 @@
 		9C8A4B241BF795C90016FBDD /* WhoFlewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoFlewTests.swift; sourceTree = "<group>"; };
 		9C8A4B301BF7B8100016FBDD /* DialogueVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DialogueVC.swift; sourceTree = "<group>"; };
 		9C8A4B341BF7DBBE0016FBDD /* SettingsTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableVC.swift; sourceTree = "<group>"; };
+		9CC2EB541C0BDFD300B1EAA1 /* 1080PiGone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1080PiGone.png; sourceTree = "<group>"; };
+		9CC2EB571C0BECFF00B1EAA1 /* 58PiGone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 58PiGone.png; sourceTree = "<group>"; };
+		9CC2EB581C0BECFF00B1EAA1 /* 80 PiGone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "80 PiGone.png"; sourceTree = "<group>"; };
+		9CC2EB591C0BECFF00B1EAA1 /* 87 PiGone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "87 PiGone.png"; sourceTree = "<group>"; };
+		9CC2EB5A1C0BECFF00B1EAA1 /* 120 PiGone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "120 PiGone.png"; sourceTree = "<group>"; };
+		9CC2EB5B1C0BECFF00B1EAA1 /* 180 PiGone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "180 PiGone.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,9 +105,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C2BFE431BFE47C400CFE6D8 /* Bolts.framework in Frameworks */,
-				9C2BFE441BFE47C400CFE6D8 /* Parse.framework in Frameworks */,
-				9C2BFE451BFE47C400CFE6D8 /* ParseUI.framework in Frameworks */,
 				9C2BFE3F1BFE46B200CFE6D8 /* SystemConfiguration.framework in Frameworks */,
 				9C2BFE3D1BFE46AB00CFE6D8 /* AudioToolbox.framework in Frameworks */,
 				9C2BFE3B1BFE46A500CFE6D8 /* Security.framework in Frameworks */,
@@ -108,10 +113,11 @@
 				9C2BFE351BFE469300CFE6D8 /* CFNetwork.framework in Frameworks */,
 				9C2BFE321BFE468E00CFE6D8 /* CoreFoundation.framework in Frameworks */,
 				9C2BFE331BFE468E00CFE6D8 /* Foundation.framework in Frameworks */,
+				9C0648C01C0BFC1A00D46140 /* Bolts.framework in Frameworks */,
+				9C0648C11C0BFC1A00D46140 /* Parse.framework in Frameworks */,
+				9C0648C21C0BFC1A00D46140 /* ParseUI.framework in Frameworks */,
 				9C2BFE2F1BFE468500CFE6D8 /* CoreLocation.framework in Frameworks */,
 				9C2BFE2D1BFE467400CFE6D8 /* CoreGraphics.framework in Frameworks */,
-				9C2BFE2B1BFE466B00CFE6D8 /* libz.dylib in Frameworks */,
-				9C2BFE291BFE466200CFE6D8 /* libsqlite3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,9 +134,9 @@
 		9C2BFE271BFE45FE00CFE6D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9C2BFE401BFE47C400CFE6D8 /* Bolts.framework */,
-				9C2BFE411BFE47C400CFE6D8 /* Parse.framework */,
-				9C2BFE421BFE47C400CFE6D8 /* ParseUI.framework */,
+				9C0648BD1C0BFC1A00D46140 /* Bolts.framework */,
+				9C0648BE1C0BFC1A00D46140 /* Parse.framework */,
+				9C0648BF1C0BFC1A00D46140 /* ParseUI.framework */,
 				9C2BFE3E1BFE46B200CFE6D8 /* SystemConfiguration.framework */,
 				9C2BFE3C1BFE46AB00CFE6D8 /* AudioToolbox.framework */,
 				9C2BFE3A1BFE46A500CFE6D8 /* Security.framework */,
@@ -141,8 +147,6 @@
 				9C2BFE311BFE468E00CFE6D8 /* Foundation.framework */,
 				9C2BFE2E1BFE468500CFE6D8 /* CoreLocation.framework */,
 				9C2BFE2C1BFE467400CFE6D8 /* CoreGraphics.framework */,
-				9C2BFE2A1BFE466B00CFE6D8 /* libz.dylib */,
-				9C2BFE281BFE466200CFE6D8 /* libsqlite3.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -189,6 +193,7 @@
 				9CB4349C1C06250A00CB4D71 /* Settings */,
 				9C8A4B151BF795C90016FBDD /* Images.xcassets */,
 				9C8A4B171BF795C90016FBDD /* LaunchScreen.xib */,
+				9CC2EB561C0BDFDB00B1EAA1 /* Images */,
 				9C8A4B091BF795C90016FBDD /* Supporting Files */,
 			);
 			path = WhoFlew;
@@ -230,6 +235,19 @@
 				9C2806E21C04E12D0072CFC2 /* MessageComposer.swift */,
 			);
 			name = Settings;
+			sourceTree = "<group>";
+		};
+		9CC2EB561C0BDFDB00B1EAA1 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				9CC2EB571C0BECFF00B1EAA1 /* 58PiGone.png */,
+				9CC2EB581C0BECFF00B1EAA1 /* 80 PiGone.png */,
+				9CC2EB591C0BECFF00B1EAA1 /* 87 PiGone.png */,
+				9CC2EB5A1C0BECFF00B1EAA1 /* 120 PiGone.png */,
+				9CC2EB5B1C0BECFF00B1EAA1 /* 180 PiGone.png */,
+				9CC2EB541C0BDFD300B1EAA1 /* 1080PiGone.png */,
+			);
+			name = Images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -283,10 +301,11 @@
 				TargetAttributes = {
 					9C8A4B051BF795C90016FBDD = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = TDDRFN2P34;
+						DevelopmentTeam = W6QS75PXYE;
 					};
 					9C8A4B1D1BF795C90016FBDD = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = W6QS75PXYE;
 						TestTargetID = 9C8A4B051BF795C90016FBDD;
 					};
 				};
@@ -315,8 +334,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CC2EB5E1C0BECFF00B1EAA1 /* 87 PiGone.png in Resources */,
+				9CC2EB5D1C0BECFF00B1EAA1 /* 80 PiGone.png in Resources */,
+				9CC2EB551C0BDFD300B1EAA1 /* 1080PiGone.png in Resources */,
 				9C8A4B141BF795C90016FBDD /* Main.storyboard in Resources */,
 				9C8A4B191BF795C90016FBDD /* LaunchScreen.xib in Resources */,
+				9CC2EB601C0BECFF00B1EAA1 /* 180 PiGone.png in Resources */,
+				9CC2EB5C1C0BECFF00B1EAA1 /* 58PiGone.png in Resources */,
+				9CC2EB5F1C0BECFF00B1EAA1 /* 120 PiGone.png in Resources */,
 				9C8A4B161BF795C90016FBDD /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -407,7 +432,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -430,6 +456,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "aeeeafdc-0a4d-47a1-a2fe-1ee0bcf47e76";
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -452,8 +479,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -468,6 +495,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				PROVISIONING_PROFILE = "aeeeafdc-0a4d-47a1-a2fe-1ee0bcf47e76";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -477,19 +505,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/atomm/Downloads/parse-library-1.9.1",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = WhoFlew/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-lsqlite3";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.atomm.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "aeeeafdc-0a4d-47a1-a2fe-1ee0bcf47e76";
 			};
 			name = Debug;
 		};
@@ -497,19 +525,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/atomm/Downloads/parse-library-1.9.1",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = WhoFlew/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-lsqlite3";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.atomm.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "aeeeafdc-0a4d-47a1-a2fe-1ee0bcf47e76";
 			};
 			name = Release;
 		};
@@ -517,18 +545,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = WhoFlewTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.atomm.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "aeeeafdc-0a4d-47a1-a2fe-1ee0bcf47e76";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhoFlew.app/WhoFlew";
 			};
 			name = Debug;
@@ -537,14 +564,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Austin Matese (TDDRFN2P34)";
 				INFOPLIST_FILE = WhoFlewTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.atomm.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "aeeeafdc-0a4d-47a1-a2fe-1ee0bcf47e76";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhoFlew.app/WhoFlew";
 			};
 			name = Release;

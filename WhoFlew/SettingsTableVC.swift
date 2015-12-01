@@ -186,23 +186,33 @@ class SettingsTableVC: UITableViewController {
             
             //share whoflew
             if indexPath.row == 0 {
-            
-                let messageComposer = MessageComposer()
-                if (messageComposer.canSendText()) {
-                    // Obtain a configured MFMessageComposeViewController
-                    let messageComposeVC = messageComposer.configuredMessageComposeViewController()
-                    
-                    // Present the configured MFMessageComposeViewController instance
-                    // Note that the dismissal of the VC will be handled by the messageComposer instance,
-                    // since it implements the appropriate delegate call-back
-                    self.presentViewController(messageComposeVC, animated: true, completion: nil)
-                } else {
-                    // Let the user know if his/her device isn't able to send text messages
-                    let errorAlert = UIAlertController(title: "☝️ Cannot Send Text Message", message: "Your device is not able to send text messages.", preferredStyle: UIAlertControllerStyle.Alert)
-                    errorAlert.addAction(dismiss)
-                    self.presentViewController(errorAlert, animated: true, completion: nil)
+                
+                let firstActivityItem = "WhoFlew"
+                let secondActivityItem : NSURL = NSURL(string: "https://www.itunes.apple.com/us/app/whoflew/id997725666?mt=8")!
+                
+                
+                let activityViewController : UIActivityViewController = UIActivityViewController(
+                    activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+                
+                
+                // Anything you want to exclude
+                activityViewController.excludedActivityTypes = [
+                    UIActivityTypePostToWeibo,
+                    UIActivityTypePrint,
+                    UIActivityTypeAssignToContact,
+                    UIActivityTypeSaveToCameraRoll,
+                    UIActivityTypeAddToReadingList,
+                    UIActivityTypePostToFlickr,
+                    UIActivityTypePostToVimeo,
+                    UIActivityTypePostToTencentWeibo,
+                    UIActivityTypeMail,
+                ]
+                
+                activityViewController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.Unknown
+                activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
 
-                }
+            
+
             }
               
                 

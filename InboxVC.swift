@@ -16,6 +16,7 @@ import Bolts
 
 
 
+
 class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UITextFieldDelegate {
     
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -213,7 +214,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         self.genView.button_Shuffle.addTarget(self, action: "generateCode", forControlEvents: UIControlEvents.TouchDown)
         
         
-        
+
         
         //loading wheel
         self.activityWheel.center.x = self.view.center.x

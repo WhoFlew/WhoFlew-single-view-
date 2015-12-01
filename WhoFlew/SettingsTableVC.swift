@@ -67,20 +67,20 @@ class SettingsTableVC: UITableViewController {
         //"Details"
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Infinite Connection: Enter Suffix"
                 return cell
             }
             
             else if indexPath.row == 1 {
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Inbox Size Limit: 10"
                 return cell
             }
                 
             else {
                 
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "NickNames Coming Soon!"
                 return cell
                 
@@ -96,35 +96,36 @@ class SettingsTableVC: UITableViewController {
         else {
             if indexPath.row == 0 {
                 
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Share WhoFlew"
+                
                 return cell
             }
             
             else if indexPath.row == 1 {
                 
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Share your Opinion"
                 return cell
             }
                 
             else if indexPath.row == 2 {
                 
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Contact Us"
                 return cell
             }
                 
             else if indexPath.row == 3 {
                 
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Rules"
                 return cell
             }
                 
             else {
                 
-                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
                 cell.textLabel!.text = "Terms of Service"
                 return cell
 
@@ -153,7 +154,7 @@ class SettingsTableVC: UITableViewController {
                 
                 let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
 
-                let alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user.", preferredStyle: UIAlertControllerStyle.Alert)
+                var alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user.", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(dismiss)
                 
                 self.presentViewController(alert, animated: true, completion: nil)
@@ -172,21 +173,31 @@ class SettingsTableVC: UITableViewController {
             
             //share whoflew
             if indexPath.row == 0 {
-            
-                let messageComposer = MessageComposer()
-                if (messageComposer.canSendText()) {
-                    // Obtain a configured MFMessageComposeViewController
-                    let messageComposeVC = messageComposer.configuredMessageComposeViewController()
-                    
-                    // Present the configured MFMessageComposeViewController instance
-                    // Note that the dismissal of the VC will be handled by the messageComposer instance,
-                    // since it implements the appropriate delegate call-back
-                    self.presentViewController(messageComposeVC, animated: true, completion: nil)
-                } else {
-                    // Let the user know if his/her device isn't able to send text messages
-                    let errorAlert = UIAlertView(title: "Cannot Send Text Message", message: "Your device is not able to send text messages.", delegate: self, cancelButtonTitle: "OK")
-                    errorAlert.show()
-                }
+                let firstActivityItem = "WhoFlew"
+                let secondActivityItem : NSURL = NSURL(string: "https://www.itunes.apple.com/us/app/whoflew/id997725666?mt=8")!
+                
+                
+                let activityViewController : UIActivityViewController = UIActivityViewController(
+                    activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+                
+              
+                activityViewController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.allZeros
+                activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+                
+                // Anything you want to exclude
+                activityViewController.excludedActivityTypes = [
+                    UIActivityTypePostToWeibo,
+                    UIActivityTypePrint,
+                    UIActivityTypeAssignToContact,
+                    UIActivityTypeSaveToCameraRoll,
+                    UIActivityTypeAddToReadingList,
+                    UIActivityTypePostToFlickr,
+                    UIActivityTypePostToVimeo,
+                    UIActivityTypePostToTencentWeibo,
+                    UIActivityTypeMail,
+                ]
+                
+                self.presentViewController(activityViewController, animated: true, completion: nil)
             }
               
                 
@@ -199,7 +210,7 @@ class SettingsTableVC: UITableViewController {
                 
             //contact us
             else if indexPath.row == 2 {
-                
+                self.performSegueWithIdentifier("showContact", sender: self)
             }
                
             

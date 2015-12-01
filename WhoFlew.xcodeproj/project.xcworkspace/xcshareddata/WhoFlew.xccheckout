@@ -5,7 +5,11 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
+<<<<<<< HEAD
 	<string>11FADB58-16D9-40C8-83D2-1E92B73EF1A9</string>
+=======
+	<string>21BB329D-3A7D-4A8C-B80F-9D4B7372AFCA</string>
+>>>>>>> master
 	<key>IDESourceControlProjectName</key>
 	<string>WhoFlew</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
@@ -34,7 +38,11 @@
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>79F14106A573FD258F6C2EFEC31563E49232CC3D</string>
 			<key>IDESourceControlWCCName</key>
+<<<<<<< HEAD
 			<string>WhoFlew-single-view-</string>
+=======
+			<string>WhoFlew</string>
+>>>>>>> master
 		</dict>
 	</array>
 </dict>

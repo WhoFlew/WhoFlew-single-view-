@@ -7,16 +7,41 @@
 //
 
 import UIKit
+import Parse
 import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-
+    
+    //dictionary for simple types, used to store settings
+    let dialoguesSaved = NSUserDefaults.standardUserDefaults()
+    
+    
+    
+    
+    //parse server id and key
+    let idDialogue: String = "0tsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
+    let keyDialogue: String = "dRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
+    
+    //true: when connection to the internet appears to be present (has yet to fail)
+    //false: when internet/parse connection has failed
+    var networkSignal: Bool = false
+    
+    
+    
+    var userName: String = UIDevice.currentDevice().identifierForVendor!.UUIDString
+    let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
+    
+    
+    
+    var statusBarSize: CGSize!
+    var navBarSize: CGSize!
+    
+    
     let allColorsArray =  [
-        UIColor.whiteColor(),
+        UIColor.clearColor(),
         UIColor(red: 58.0/255.0, green: 179.0/255.0, blue: 255.0/255.0, alpha: 1.0), //colorSkyCrisp
         UIColor(red: 251.0/255.0, green: 65.0/255.0, blue: 74.0/255.0, alpha: 1.0), //colorMelodRed
         UIColor(red: 92.0/255.0, green: 1, blue: 102.0/255.0, alpha: 1.0), //colorFroggertGreen
@@ -31,10 +56,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIColor.brownColor()
     ]
     
+
     
+    
+
+    
+    
+    //codes that dont let users send messages
+    var noReply = ["welcome!"]
+    var codesDeleted = [(String)]()
+    var shouldDeleteThese = [(String)]()
+
+
+    
+    //objects in core data, stores details of conversation (endAt, shouldDelete, userOrder)
+    var userCodes = [(NSManagedObject)]()
+    var connections = ["Welcome!": (messageArray: ["Introducing WhoFlew", "Ya"], orderArray: [0,0], pairs: [String]())]
+    //[String(): (messageArray: [String](), orderArray: [Int](), pairs: [String]())]
+
+    
+    //used to query all codes in the inbox
+    var codeIds = [(String)]()
+
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+
+        
+        
+        //set up parse with id and key
+        Parse.setApplicationId(self.idDialogue, clientKey: self.keyDialogue)
+        
+        //read and save settings, like pairAttempts
+        self.readSettings()
+        
+        //get user info form data
+        self.fetchFromCoreData()
+        
+        
+        
+        
+        //check here
+        self.networkSignal = true
+        
+
+        
         return true
     }
 
@@ -62,12 +128,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.saveContext()
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // MARK: - Core Data stack
 
     lazy var applicationDocumentsDirectory: NSURL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.atomm.WhoFlew" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
+        return urls[urls.count-1] 
     }()
 
     lazy var managedObjectModel: NSManagedObjectModel = {
@@ -83,7 +159,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("WhoFlew.sqlite")
         var error: NSError? = nil
         var failureReason = "There was an error creating or loading the application's saved data."
-        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil, error: &error) == nil {
+        do {
+            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
+        } catch var error1 as NSError {
+            error = error1
             coordinator = nil
             // Report any error we got.
             var dict = [String: AnyObject]()
@@ -95,6 +174,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             NSLog("Unresolved error \(error), \(error!.userInfo)")
             abort()
+        } catch {
+            fatalError()
         }
         
         return coordinator
@@ -116,14 +197,114 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func saveContext () {
         if let moc = self.managedObjectContext {
             var error: NSError? = nil
-            if moc.hasChanges && !moc.save(&error) {
-                // Replace this implementation with code to handle the error appropriately.
-                // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                NSLog("Unresolved error \(error), \(error!.userInfo)")
-                abort()
+            if moc.hasChanges {
+                do {
+                    try moc.save()
+                } catch let error1 as NSError {
+                    error = error1
+                    // Replace this implementation with code to handle the error appropriately.
+                    // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                    NSLog("Unresolved error \(error), \(error!.userInfo)")
+                    abort()
+                }
             }
         }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func fetchFromCoreData() {
+        
+        
+        let context: NSManagedObjectContext = self.managedObjectContext!
+
+        
+        let request = NSFetchRequest(entityName: "Connections")
+        request.returnsObjectsAsFaults = false
+        request.sortDescriptors = [NSSortDescriptor(key: "endAt", ascending: true)]
+        
+        
+        let results: NSArray = try! context.executeFetchRequest(request)
+        
+        
+        self.userCodes.removeAll(keepCapacity: false)
+        self.connections.removeAll(keepCapacity: false)
+        
+
+        for code in results {
+            
+            
+            let codeId = code.valueForKey("codeId") as! String
+            let codeName = code.valueForKey("codeName") as! String
+            
+            let endAt = code.valueForKey("endAt") as? NSDate
+            let shouldDelete = code.valueForKey("shouldDelete") as? Bool
+
+            let userMade = code.valueForKey("userOrder") as! Int
+            
+
+            
+            if !endAt!.timeIntervalSinceNow.isSignMinus &&
+                !shouldDelete! &&
+                    !self.shouldDeleteThese.contains(codeId) {
+                    
+                self.userCodes.append(code as! (NSManagedObject))
+                
+                self.codeIds.append(codeId)
+            }
+            else {
+                self.codesDeleted.append(codeName)
+                self.managedObjectContext!.deleteObject(code as! NSManagedObject)
+            }
+            
+
+
+            if userMade == 1 {
+                //self.userMadeCount++
+            }
+            
+            
+
+        }
+        self.saveContext()
+        self.saveSettings()
+
+        
+        self.shouldDeleteThese.removeAll(keepCapacity: false)
+    }
+    
+    
+    
+    
+    
+    
+    func saveSettings() {
+        
+
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    func readSettings() {
+        
+        
+
+        
+    }
+    
 
 }
 

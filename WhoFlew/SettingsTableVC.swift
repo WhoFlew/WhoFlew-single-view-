@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MessageUI
 
 class SettingsTableVC: UITableViewController {
 
@@ -40,7 +41,7 @@ class SettingsTableVC: UITableViewController {
             return 2
         }
         else if section == 1 {
-            return 4
+            return 5
         }
         else {
             return 1
@@ -50,67 +51,183 @@ class SettingsTableVC: UITableViewController {
     
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
-            return "Connection Code Details"
+            return "Details"
         }
         else {
-            return "WhoFlew settings"
+            return "WhoFlew, a Juup production"
         }
     }
 
+    
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
+        tableView.deselectRowAtIndexPath(indexPath, animated: false)
         
+        //"Details"
         if indexPath.section == 0 {
             if indexPath.row == 0 {
-                
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
-                cell.textLabel!.text = "Generate With Custom Name: "
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                cell.textLabel!.text = "Infinite Connection: Enter Suffix"
+                return cell
+            }
+            
+            else if indexPath.row == 1 {
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                cell.textLabel!.text = "Inbox Size Limit: 10"
                 return cell
             }
                 
             else {
                 
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
-                cell.textLabel!.text = "Delete Every"
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                cell.textLabel!.text = "NickNames Coming Soon!"
                 return cell
+                
             }
         }
             
             
             
-        else {
             
+            
+        
+        //"WhoFlew, a Juup production"
+        else {
             if indexPath.row == 0 {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Share WhoFlew"
                 return cell
-                
             }
+            
             else if indexPath.row == 1 {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
+                cell.textLabel!.text = "Share your Opinion"
+                return cell
+            }
+                
+            else if indexPath.row == 2 {
+                
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Contact Us"
                 return cell
-                
             }
-            else if indexPath.row == 2 {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                
+            else if indexPath.row == 3 {
+                
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Rules"
                 return cell
-                
             }
+                
             else {
-                var cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings") as! UITableViewCell
+                
+                let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForSettings")!
                 cell.textLabel!.text = "Terms of Service"
                 return cell
+
+            }
+        }
+            
+            
+    }
+    
+    
+
+        
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        
+        tableView.deselectRowAtIndexPath(indexPath, animated: false)
+        
+        //"Details"
+        if indexPath.section == 0 {
+            if indexPath.row == 0 {
+                //infinite connection
+            }
+                
+            else if indexPath.row == 1 {
+                //inbox size limit
+                
+                let dismiss = UIAlertAction(title: "✌️", style: UIAlertActionStyle.Cancel, handler: nil)
+
+                let alert = UIAlertController(title: "☝️", message: "No adds. No in app purchases. Due to the size of our user base compared to our servers, we can only offer 10 connections per user.", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(dismiss)
+                
+                self.presentViewController(alert, animated: true, completion: nil)
+
+            }
+                
+            else {
+                //nickNames coming soon
                 
             }
         }
+            
+        //"WhoFlew, a Juup production"
+        else {
+            
+            
+            //share whoflew
+            if indexPath.row == 0 {
+            
+                let messageComposer = MessageComposer()
+                if (messageComposer.canSendText()) {
+                    // Obtain a configured MFMessageComposeViewController
+                    let messageComposeVC = messageComposer.configuredMessageComposeViewController()
+                    
+                    // Present the configured MFMessageComposeViewController instance
+                    // Note that the dismissal of the VC will be handled by the messageComposer instance,
+                    // since it implements the appropriate delegate call-back
+                    self.presentViewController(messageComposeVC, animated: true, completion: nil)
+                } else {
+                    // Let the user know if his/her device isn't able to send text messages
+                    let errorAlert = UIAlertView(title: "Cannot Send Text Message", message: "Your device is not able to send text messages.", delegate: self, cancelButtonTitle: "OK")
+                    errorAlert.show()
+                }
+            }
+              
+                
+            //share your opinion
+            else if indexPath.row == 1 {
+                UIApplication.sharedApplication().openURL(NSURL(string : "https://www.itunes.apple.com/us/app/whoflew/id997725666?mt=8")!)
+                    
+                }
+                
+                
+            //contact us
+            else if indexPath.row == 2 {
+                
+            }
+               
+            
+            //rules
+            else if indexPath.row == 3 {
+                
+            }
+               
+                
+            //terms of serivce
+            else {
+                self.performSegueWithIdentifier("showTerms", sender: self)
+            }
+        }
 
-
+    
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
 
+    
     /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {

@@ -10,7 +10,22 @@ import UIKit
 import Parse
 import CoreData
 
+extension UIColor {
+    convenience init(red: Int, green: Int, blue: Int) {
+        assert(red >= 0 && red <= 255, "Invalid red component")
+        assert(green >= 0 && green <= 255, "Invalid green component")
+        assert(blue >= 0 && blue <= 255, "Invalid blue component")
+        
+        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+    }
+    
+    convenience init(netHex:Int) {
+        self.init(red:(netHex >> 16) & 0xff, green:(netHex >> 8) & 0xff, blue:netHex & 0xff)
+    }
+}
+
 @UIApplicationMain
+
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
@@ -31,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     
-    var userName: String = UIDevice.currentDevice().identifierForVendor!.UUIDString
+    var userName: String = UIDevice.currentDevice().identifierForVendor.UUIDString
     let passWord: String = "RightHere,RightNow!Gj%eo8sL*o29Wq1L0O&?'@$%9RightHere,RightNow#&@J("
     
     
@@ -53,7 +68,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIColor.blackColor(),
         UIColor.magentaColor(),
         UIColor.blueColor(),
-        UIColor.brownColor()
+        UIColor.brownColor(),
+        UIColor(netHex:0x3b8af3),
+        UIColor(netHex: 0x75adf6)
     ]
     
 
@@ -143,7 +160,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     lazy var applicationDocumentsDirectory: NSURL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.atomm.WhoFlew" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] 
+        return urls[urls.count-1] as! NSURL
     }()
 
     lazy var managedObjectModel: NSManagedObjectModel = {
@@ -159,10 +176,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("WhoFlew.sqlite")
         var error: NSError? = nil
         var failureReason = "There was an error creating or loading the application's saved data."
-        do {
-            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
-        } catch var error1 as NSError {
-            error = error1
+        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil, error: &error) == nil {
             coordinator = nil
             // Report any error we got.
             var dict = [String: AnyObject]()
@@ -174,8 +188,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             NSLog("Unresolved error \(error), \(error!.userInfo)")
             abort()
-        } catch {
-            fatalError()
         }
         
         return coordinator
@@ -197,16 +209,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func saveContext () {
         if let moc = self.managedObjectContext {
             var error: NSError? = nil
-            if moc.hasChanges {
-                do {
-                    try moc.save()
-                } catch let error1 as NSError {
-                    error = error1
-                    // Replace this implementation with code to handle the error appropriately.
-                    // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                    NSLog("Unresolved error \(error), \(error!.userInfo)")
-                    abort()
-                }
+            if moc.hasChanges && !moc.save(&error) {
+                // Replace this implementation with code to handle the error appropriately.
+                // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                NSLog("Unresolved error \(error), \(error!.userInfo)")
+                abort()
             }
         }
     }
@@ -225,14 +232,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         let context: NSManagedObjectContext = self.managedObjectContext!
-
+        let connectionCodes = NSEntityDescription.entityForName("Connections", inManagedObjectContext: context)
         
-        let request = NSFetchRequest(entityName: "Connections")
+        var request = NSFetchRequest(entityName: "Connections")
         request.returnsObjectsAsFaults = false
         request.sortDescriptors = [NSSortDescriptor(key: "endAt", ascending: true)]
         
-        
-        let results: NSArray = try! context.executeFetchRequest(request)
+        var errorRequest: NSError?
+        var results: NSArray = context.executeFetchRequest(request, error: &errorRequest)!
         
         
         self.userCodes.removeAll(keepCapacity: false)
@@ -242,19 +249,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         for code in results {
             
             
-            let codeId = code.valueForKey("codeId") as! String
-            let codeName = code.valueForKey("codeName") as! String
+            var codeId = code.valueForKey("codeId") as! String
+            var codeName = code.valueForKey("codeName") as! String
             
-            let endAt = code.valueForKey("endAt") as? NSDate
-            let shouldDelete = code.valueForKey("shouldDelete") as? Bool
+            var endAt = code.valueForKey("endAt") as? NSDate
+            var shouldDelete = code.valueForKey("shouldDelete") as? Bool
 
-            let userMade = code.valueForKey("userOrder") as! Int
+            var userMade = code.valueForKey("userOrder") as! Int
             
 
             
             if !endAt!.timeIntervalSinceNow.isSignMinus &&
                 !shouldDelete! &&
-                    !self.shouldDeleteThese.contains(codeId) {
+                    !contains(self.shouldDeleteThese, codeId) {
                     
                 self.userCodes.append(code as! (NSManagedObject))
                 

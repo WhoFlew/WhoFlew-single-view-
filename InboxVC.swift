@@ -28,6 +28,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     var genView: GenView!
     
     
+    
     //populates scroll view: timeSlide
     let durationLimits = ["10m", "15m","20m","25m","30m","35m","40m","45m","50m","55m","1h", "2h","3h","4h","5h","6h","7h","8h", "1d", "2d","3d","4d"]
     
@@ -49,16 +50,12 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     var baseView_Gen: UIView!
     
     //time expiration time limit
-    //var collectionView: UICollectionView!
-<<<<<<< Updated upstream
-=======
-    //checkHere
->>>>>>> Stashed changes
+    var collectionView: UICollectionView!
     var label_Time: UILabel!
     
 
     var tableView: UITableView!
-    var button_Gen: UIView = UIButton(type: UIButtonType.ContactAdd) as UIView
+    var button_Gen: UIView = UIButton.buttonWithType(UIButtonType.ContactAdd) as! UIView
     
     
     //pickerview with 3 componenets (hour, day, min)
@@ -128,7 +125,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         if let navController: UINavigationController = self.navigationController {
             
             self.appDelegate.navBarSize = navController.navigationBar.frame.size
-            self.appDelegate.statusBarSize = UIApplication.sharedApplication().statusBarFrame.standardized.size
+            self.appDelegate.statusBarSize = UIApplication.sharedApplication().statusBarFrame.standardizedRect.size
         }
         
         
@@ -163,8 +160,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         self.tableView.tag = 1
 
         
-        self.tableView.backgroundColor = self.appDelegate.allColorsArray[1]
-
+        self.tableView.backgroundColor = self.appDelegate.allColorsArray[13]
+        self.tableView.headerViewForSection(0)?.textLabel.textAlignment = NSTextAlignment.Center
         
         
         
@@ -196,7 +193,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
 
         
         //scroll view for duration, label indicates set time
-        //self.collectionView = self.genView.collectionView
+        self.collectionView = self.genView.collectionView
         self.label_Time = self.genView.label_Time
         
         
@@ -246,20 +243,17 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
 
         //collection view scroll with label
         self.baseView_Gen.addSubview(self.label_Time)
-        //self.baseView_Gen.addSubview(self.collectionView)
-<<<<<<< Updated upstream
+        self.baseView_Gen.addSubview(self.collectionView)
         
-=======
-        //checkHere
->>>>>>> Stashed changes
         
         //toggles between two time views
         self.baseView_Gen.addSubview(self.button_OtherTimes)
         
     
         //pickerview time with label
-        self.baseView_Gen.addSubview(self.labelView_PickerTime)
+
         self.baseView_Gen.addSubview(self.pickerView)
+        self.baseView_Gen.addSubview(self.labelView_PickerTime)
 
 
         self.view.addSubview(self.baseView_Gen)
@@ -308,8 +302,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
             self.queryCheck.whereKey("objectId", containedIn: self.appDelegate.codeIds)
         
-            self.queryCheck.findObjectsInBackgroundWithBlock { (aliveCodes, errorPoint) -> Void in
-                if let error = errorPoint {
+            self.queryCheck.findObjectsInBackgroundWithBlock { (aliveCodes: [AnyObject]?, errorQuery: NSError?) -> Void in
+                if let error = errorQuery {
                     
                     if error.code == 100 {
                         self.appDelegate.networkSignal = false
@@ -319,7 +313,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                     }
                 }
                 
-                else if let aliveCodes = aliveCodes {
+                else if let aliveCodes = aliveCodes as? [(PFObject)] {
                     self.appDelegate.networkSignal = true
                     
                     if aliveCodes.count != self.appDelegate.codeIds.count {
@@ -373,12 +367,12 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         if segue.identifier == "enterConvo" {
             let nextVC = segue.destinationViewController as! DialogueVC
-
+            let sender = sender as! InboxVC
             
         
-            let indexPath = self.inboxTable.indexPathForSelectedRow!
-            let range: Range = 0...self.appDelegate.userCodes.count
-            if Array(range).contains(indexPath.row) {
+            var indexPath = self.inboxTable.indexPathForSelectedRow()!
+            var range: Range = 0...self.appDelegate.userCodes.count
+            if contains(Array(range), indexPath.row) {
                 nextVC.codeName = self.appDelegate.userCodes[indexPath.row].valueForKey("codeName") as! String
                 nextVC.codeId = self.appDelegate.userCodes[indexPath.row].valueForKey("codeId") as! String
                 
@@ -433,7 +427,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //generate new code
         else {
             self.resetViewsTo("GenerateBase", duration: 0.67)
-            self.resetViewsTo("GenerateExtension", duration: 0.0)
         }
     }
     
@@ -498,13 +491,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         self.queryConnection.whereKey("endAt", greaterThan: NSDate())
         
         var errorPoint: NSError?
-        var codeObject: [AnyObject]?
-        do {
-            codeObject = try self.queryConnection.findObjects()
-        } catch let error as NSError {
-            errorPoint = error
-            codeObject = nil
-        }
+        var codeObject = self.queryConnection.findObjects(&errorPoint)
         if let error = errorPoint {
             
             //error.code 100 means no internet
@@ -522,7 +509,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         else if let code = codeObject {
             
             if code.count == 1 {
-                let pairCode = code.first as! PFObject
+                var pairCode = code.first as! PFObject
                 
                 //get the information for that code: date, objectId, users paired
                 let codeId = (pairCode.objectId as String?)!
@@ -562,28 +549,20 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                             
                             //save details to core data
                             let context: NSManagedObjectContext = self.appDelegate.managedObjectContext!
-                            let newConnection = NSEntityDescription.insertNewObjectForEntityForName("Connections", inManagedObjectContext: context) 
+                            let newConnection = NSEntityDescription.insertNewObjectForEntityForName("Connections", inManagedObjectContext: context) as! NSManagedObject
                             
                             newConnection.setValue(codeName, forKey: "codeName")
                             newConnection.setValue(codeId, forKey: "codeId")
-                            newConnection.setValue(endAt, forKey: "endAt")
+                            newConnection.setValue(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0), forKey: "endAt")
                             newConnection.setValue(pairs.count, forKey: "userOrder")
                             
                             newConnection.setValue(false, forKey: "shouldDelete")
                             newConnection.setValue(NSDate(), forKey: "lastRead")
                             
                             var errorPoint: NSError?
-                            do {
-                                try context.save()
-                            } catch let error as NSError {
-                                errorPoint = error
-                            } catch {
-                                fatalError()
-                            }
+                            context.save(&errorPoint)
                             if let error = errorPoint {
-                                if error.code == 100 {
-                                    //no internet
-                                }
+                                
                             }
                             else {
                                 //present pair alert
@@ -639,13 +618,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         self.queryAllCodes.selectKeys(["codeName"])
         
         var errorPoint: NSError?
-        var allCodes: [AnyObject]?
-        do {
-            allCodes = try queryAllCodes.findObjects()
-        } catch let error as NSError {
-            errorPoint = error
-            allCodes = nil
-        }
+        var allCodes = queryAllCodes.findObjects(&errorPoint)
         if let error = errorPoint {
             
             //network off line
@@ -689,7 +662,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             self.utilities.delay(18.0, closure: { () -> () in
                 
                 if !self.newCodeSelected {
-                    print("delay enacted")
+                    println("delay enacted")
                     self.resetViewsTo("PairView", duration: 1.2)
                 }
                 
@@ -718,7 +691,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     func saveNewCode(codeName: String) {
         
         
-        let codeTable = PFObject(className: "Connection")
+        var codeTable = PFObject(className: "Connection")
         
         codeTable.setValue(codeName, forKey: "code")
         codeTable.setValue(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0), forKey: "endAt")
@@ -753,7 +726,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 self.appDelegate.networkSignal = true
                 
                 let context: NSManagedObjectContext = self.appDelegate.managedObjectContext!
-                let newConnection = NSEntityDescription.insertNewObjectForEntityForName("Connections", inManagedObjectContext: context) 
+                let newConnection = NSEntityDescription.insertNewObjectForEntityForName("Connections", inManagedObjectContext: context) as! NSManagedObject
                 
                 newConnection.setValue(codeName, forKey: "codeName")
                 newConnection.setValue(codeTable.objectId, forKey: "codeId")
@@ -764,17 +737,9 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 newConnection.setValue(NSDate(), forKey: "lastRead")
                 
                 var errorPoint: NSError?
-                do {
-                    try context.save()
-                } catch let error as NSError {
-                    errorPoint = error
-                } catch {
-                    fatalError()
-                }
+                context.save(&errorPoint)
                 if let error = errorPoint {
-                    if error.code == 100 {
-                        
-                    }
+
                 }
                 else {
                     self.appDelegate.fetchFromCoreData()
@@ -787,13 +752,13 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                     //acts as a highlight that fades to white
                     var index: Int = 0
                     for code in self.appDelegate.userCodes {
-                        let codeName = code.valueForKey("codeName") as! String
+                        var codeName = code.valueForKey("codeName") as! String
                         
                         
-                        if self.newCodeOptions.contains(codeName) {
-                            let indexPath = NSIndexPath(forRow: index, inSection: 0)
+                        if contains(self.newCodeOptions, codeName) {
+                            var indexPath = NSIndexPath(forRow: index, inSection: 0)
                             
-                            let cell = self.inboxTable.cellForRowAtIndexPath(indexPath)
+                            var cell = self.inboxTable.cellForRowAtIndexPath(indexPath)
                             cell!.backgroundColor = self.appDelegate.allColorsArray[1]
                             
                             
@@ -887,7 +852,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 
 
                 self.label_Time.hidden = true
-                //self.collectionView.hidden = true
+                self.collectionView.hidden = true
             })
         }
         
@@ -911,7 +876,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             self.button_OtherTimes.hidden = false
             self.button_OtherTimes.selected = false
             
-
             
             
             UIView.animateWithDuration(duration, animations: { () -> Void in
@@ -927,19 +891,19 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 
                 
                 //indicates time from scrollView
-                let labelFrame = CGRect(x: 0.0, y: 0, width: self.view.frame.width, height: 90)
+                let labelFrame = CGRect(x: 0.0, y: 0, width: self.view.frame.width, height: 60)
                 self.label_Time.frame = labelFrame
-                let stringExpiration: String = self.utilities.durationToString(NSDate().dateByAddingTimeInterval(self.genView.duration * 60.0))
-                self.label_Time.text = "expires in\n\(stringExpiration)"
+                self.label_Time.text = "set expiration"
                 
-                self.baseView.backgroundColor = self.appDelegate.allColorsArray[1]
                 
-                self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[1]
+                self.baseView.backgroundColor = self.appDelegate.allColorsArray[13]
+               
+                self.baseView_Gen.backgroundColor = self.appDelegate.allColorsArray[14]
                 
                 
                 
                 self.label_Time.hidden = false
-                //self.collectionView.hidden = false
+                self.collectionView.hidden = false
                 
                 }, completion: { (completed) -> Void in
                     
@@ -962,20 +926,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         else if displayThis == "GenerateExtension" {
             self.button_OtherTimes.selected = true
             
-            self.label_Time.text = "set expiration"
-            
+            self.label_Time.hidden = true
+            self.collectionView.hidden = true
             
             UIView.animateWithDuration(duration, animations: { () -> Void in
                 
                 let newHeight: CGFloat = self.pickerView.frame.height + 30
                 let yPosition: CGFloat = self.view.frame.size.height - newHeight - self.baseView.frame.height
                 self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: newHeight)
-                
-                
-                //indicates time from scrollView
-                let labelFrame = CGRect(x: 0.0, y: 5.0, width: self.view.frame.width, height: 30)
-                self.label_Time.frame = labelFrame
-                
                 
                 }, completion: { (completed) -> Void in
                     
@@ -997,13 +955,12 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             self.tableView.allowsSelection = false
             
             self.button_OtherTimes.selected = true
-            self.button_OtherTimes.hidden = true
             
             self.tableView.hidden = false
             
             
             self.label_Time.hidden = false
-            //self.collectionView.hidden = true
+            self.collectionView.hidden = true
             
             self.pickerView.hidden = true
             self.labelView_PickerTime.hidden = true
@@ -1012,7 +969,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             
             UIView.animateWithDuration(duration, animations: { () -> Void in
                 
-                let newHeight: CGFloat = self.baseView_Gen.frame.height + self.baseView.frame.height
+                let newHeight: CGFloat = self.view.frame.height
                 let yPosition: CGFloat = self.view.frame.size.height - newHeight
                 self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: newHeight)
                 
@@ -1022,7 +979,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
 
                 
                 //indicates time from scrollView
-                let labelFrame = CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: 60)
+                let labelFrame = CGRect(x: 0.0, y: tableFrame.origin.y - 60, width: self.view.frame.width, height: 60)
                 self.label_Time.frame = labelFrame
                 self.label_Time.text = "select a new codeName"
                 
@@ -1031,7 +988,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 }, completion: { (completed) -> Void in
                     
                     if completed {
-                        self.generateCode(self.textField.text!)
+                        self.generateCode(self.textField.text)
                         self.textField.text = ""
                     }
             })
@@ -1086,7 +1043,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         self.kbIsUp = true
         
         var info: Dictionary = notification.userInfo!
-        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
+        self.kbSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
 
 
       
@@ -1097,7 +1054,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 
                 //90.0: baseView_Gen:: height of this view
                 //1.0: gap between the two
-                let yPosition: CGFloat =  self.baseView.frame.origin.y - self.kbSize.height
+                var yPosition: CGFloat =  self.baseView.frame.origin.y - self.kbSize.height
                 self.baseView.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView.frame.width, height: self.baseView.frame.height + self.kbSize.height)
                 
                 if !self.baseViewIsPair {
@@ -1122,8 +1079,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     func keyBoardHide(notification: NSNotification) {
         self.kbIsUp = false
         
-        //var info: Dictionary = notification.userInfo!
-        //var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue.size)!
+        var info: Dictionary = notification.userInfo!
+        var keyboardSize: CGSize = (info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue().size)!
         
 
         if !self.baseViewIsPair {
@@ -1135,7 +1092,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                     
                     //90.0: baseView_Gen:: height of this view
                     //1.0: gap between the two
-                    let yPosition: CGFloat =  self.view.frame.height - (self.baseView.frame.height + 90 + 1)
+                    var yPosition: CGFloat =  self.view.frame.height - (self.baseView.frame.height + 90 + 1)
                     self.baseView_Gen.frame = CGRect(x: 0.0, y: yPosition, width: self.baseView_Gen.frame.width, height: 90)
                 })
             }
@@ -1166,8 +1123,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         if self.baseViewIsPair {
         
             //present alert if invalid
-            if self.isValidCode(self.textField.text!) {
-                self.pairWithCode(self.textField.text!)
+            if self.isValidCode(self.textField.text) {
+                self.pairWithCode(self.textField.text)
                 self.textField.text = ""
             }
         }
@@ -1177,7 +1134,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         else {
             
             //present alert if invalid
-            if self.isValidCode(self.textField.text!) {
+            if self.isValidCode(self.textField.text) {
                 
                 self.newCodeOptions = ["","...loading...",""]
                 self.tableView.reloadData()
@@ -1279,9 +1236,9 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         if tableView.tag == 0 {
-            if let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForInbox") {
+            if let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cellForInbox") as? UITableViewCell {
                 
-                let endAt = self.appDelegate.userCodes[indexPath.row].valueForKey("endAt") as? NSDate
+                var endAt = self.appDelegate.userCodes[indexPath.row].valueForKey("endAt") as? NSDate
                 var dateAsString: String = "unknown"
                 dateAsString = self.utilities.durationToString(endAt!)
                 
@@ -1302,7 +1259,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         }
         
         else {
-            let cell = UITableViewCell()
+            var cell = UITableViewCell()
             cell.textLabel!.text = self.newCodeOptions[indexPath.row]
             cell.textLabel!.textAlignment = NSTextAlignment.Center
             return cell
@@ -1320,7 +1277,6 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         if tableView.tag == 0 {
-            print("did select called")
             if !self.textField.isFirstResponder() {
                 self.performSegueWithIdentifier("enterConvo", sender: self)
             }
@@ -1367,10 +1323,10 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
     
     
     //actions for tableview cells on swipe
-    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
         
         
-        let clearRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "clear", handler: { action, indexpath in
+        var clearRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "clear", handler: { action, indexpath in
             
             
             if indexPath.row < self.appDelegate.userCodes.count {
@@ -1386,7 +1342,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 
                 self.view.addSubview(self.clearedSuccessLabel)
                 
-                let clearId: String = self.appDelegate.userCodes[indexPath.row].valueForKey("codeId") as! String
+                var clearId: String = self.appDelegate.userCodes[indexPath.row].valueForKey("codeId") as! String
                 self.clearServer_Messages([clearId])
             }
 
@@ -1395,7 +1351,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         clearRowAction.backgroundColor = self.appDelegate.allColorsArray[1]
         
         
-        let deleteRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "delete", handler: { action, indexpath in
+        var deleteRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "delete", handler: { action, indexpath in
             
             if indexPath.row < self.appDelegate.userCodes.count {
                 
@@ -1416,7 +1372,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         })
         
         
-        let unknownAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "...", handler:{ action, indexpath in
+        var unknownAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "...", handler:{ action, indexpath in
             tableView.editing = false
         })
         unknownAction.backgroundColor = UIColor.whiteColor()
@@ -1454,13 +1410,9 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         let codeObject = PFObject(withoutDataWithClassName: "Connection", objectId: deleteId)
 
-        do {
-            try PFObject.deleteAll([codeObject])
-        } catch let error as NSError {
-            if error.code == 100 {
-                //no internet signal
-            }
-        }
+        
+        var errorDelete: NSError?
+        PFObject.deleteAll([codeObject], error: &errorDelete)
         
         self.clearServer_Messages([deleteId])
     }
@@ -1471,7 +1423,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         //clear the messages associated with this conversation
         //first have to query to find them
-        let deleteQuery = PFQuery(className: "Messages")
+        var errorClear: NSError?
+        var deleteQuery = PFQuery(className: "Messages")
         deleteQuery.whereKey("codeId", containedIn: codeIdArray)
         deleteQuery.findObjectsInBackgroundWithBlock({ (deleteMessages, errorClear) -> Void in
             if let error = errorClear {
@@ -1489,16 +1442,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
                 self.appDelegate.networkSignal = true
                 
                 var errorDelete: NSError?
-                var deleted: Bool
-                do {
-                    try PFObject.deleteAll(deleteMessages)
-                    deleted = true
-                } catch let error as NSError {
-                    errorDelete = error
-                    deleted = false
-                } catch {
-                    fatalError()
-                }
+                var deleted = PFObject.deleteAll(deleteMessages, error: &errorDelete)
                 if let error = errorDelete {
                     
                     self.clearedSuccessLabel.text = "failed"
@@ -1598,14 +1542,14 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         if !input.isEmpty {
             
             //code input must be at least 4
-            if input.characters.count < 4  {
+            if count(input) < 4  {
                 self.presentViewController(self.alerts.alertsByType("short"), animated: true, completion: nil)
                 return false
             }
                 
                 
                 //code input cannot be greater than 17
-            else if input.characters.count > 17 {
+            else if count(input) > 17 {
                 self.presentViewController(self.alerts.alertsByType("long"), animated: true, completion: nil)
                 return false
             }

@@ -188,7 +188,7 @@ class SettingsTableVC: UITableViewController {
             if indexPath.row == 0 {
                 
                 let firstActivityItem = "WhoFlew"
-                let secondActivityItem : NSURL = NSURL(string: "https://www.itunes.apple.com/us/app/whoflew/id997725666?mt=8")!
+                let secondActivityItem : NSURL = NSURL(string: "https://appsto.re/us/IxbE7.i")!
                 
                 
                 let activityViewController : UIActivityViewController = UIActivityViewController(
@@ -218,7 +218,7 @@ class SettingsTableVC: UITableViewController {
                 
             //share your opinion
             else if indexPath.row == 1 {
-                UIApplication.sharedApplication().openURL(NSURL(string : "https://www.itunes.apple.com/us/app/whoflew/id997725666?mt=8")!)
+                UIApplication.sharedApplication().openURL(NSURL(string : "https://appsto.re/us/IxbE7.i")!)
                     
                 }
                 

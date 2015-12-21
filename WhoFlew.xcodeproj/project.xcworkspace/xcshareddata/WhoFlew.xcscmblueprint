@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "79F14106A573FD258F6C2EFEC31563E49232CC3D",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "045CB9E777A2293727B0D8D7E1D7226106AF1A4A" : 0,
+    "79F14106A573FD258F6C2EFEC31563E49232CC3D" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "21BB329D-3A7D-4A8C-B80F-9D4B7372AFCA",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "045CB9E777A2293727B0D8D7E1D7226106AF1A4A" : "",
+    "79F14106A573FD258F6C2EFEC31563E49232CC3D" : "WhoFlew"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "WhoFlew",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "WhoFlew.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/WhoFlew\/WhoFlew.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "045CB9E777A2293727B0D8D7E1D7226106AF1A4A"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/WhoFlew\/WhoFlew-single-view-.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "79F14106A573FD258F6C2EFEC31563E49232CC3D"
+    }
+  ]
+}

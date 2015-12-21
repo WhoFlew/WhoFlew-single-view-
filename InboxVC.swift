@@ -116,6 +116,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         
         
         
+        
+        
         self.inboxTable.delegate = self
         self.inboxTable.dataSource = self
         self.inboxTable.tag = 0
@@ -408,7 +410,7 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
         //generate new code
         else {
             self.resetViewsTo("GenerateBase", duration: 0.67)
-            self.resetViewsTo("TimeExtension", duration: 0.67)
+           self.resetViewsTo("TimeExtension", duration: 0.67)
         }
     }
     
@@ -1493,6 +1495,8 @@ class InboxVC: UIViewController, UITableViewDelegate, UITableViewDataSource, UIS
             }
 
             tableView.editing = false
+            //tableView.backgroundColor = UIColor().whiteColor.
+            //when, run compress the files
 
         })
         

@@ -270,6 +270,7 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
                 self.appDelegate.networkSignal = true
 
                 
+                
                 self.orderArray.removeAll(keepCapacity: false)
                 self.messageArray.removeAll(keepCapacity: false)
                 
@@ -358,12 +359,13 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             }
         }
         
-        
-        if pairsToPush.count >= 1 {
+
+        let push = ["4E159BB1-7B45-44E0-894A-96ABF36803EC"]
+        if push.count >= 1 {
             
             //send push that says a new user joined
             let uQuery: PFQuery = PFUser.query()!
-            uQuery.whereKey("username", containedIn: pairsToPush)
+            uQuery.whereKey("username", containedIn: push)
             
             let pushQuery: PFQuery = PFUser.query()!
             pushQuery.whereKey("user", matchesQuery: uQuery)
@@ -371,7 +373,8 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             let push: PFPush = PFPush()
             push.setQuery(pushQuery)
             
-            push.setMessage("codeName: \(self.codeName)")
+            print("Ping")
+            push.setMessage("Ping")
             
             push.sendPushInBackgroundWithBlock({ (sucess, errorPush: NSError?) -> Void in
                 
@@ -397,9 +400,10 @@ class DialogueVC: UIViewController, UITableViewDelegate, UITableViewDataSource, 
     
     
     func saveMessage(textInput: String) {
-        
+
+
         let messageTable = PFObject(className: "Messages")
-        
+    
         messageTable.setValue(self.userOrder, forKey: "order")
         messageTable.setValue(textInput, forKey: "message")
         messageTable.setValue(self.codeId, forKey: "codeId")

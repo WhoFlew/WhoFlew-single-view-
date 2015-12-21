@@ -40,9 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var numPairAttemptsInLast24: Int = 0
     
     
-    //parse server id and key, 0d
-    let idDialogue: String = "ytsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
-    let keyDialogue: String = "tRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
+    //parse server id and key, 0
+    let idDialogue: String = "0tsej3yMuG95kbOaeQXLihgbsF9ycgNErj7UJAkK"
+    let keyDialogue: String = "dRu62EGKeDARgT2hgTX9LLFJ1MPqKevaozUp5XJn"
     
     //true: when connection to the internet appears to be present (has yet to fail)
     //false: when internet/parse connection has failed
@@ -60,8 +60,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     let allColorsArray =  [
         UIColor.clearColor(),
-        UIColor(red: 58.0/255.0, green: 179.0/255.0, blue: 255.0/255.0, alpha: 1.0), //colorSkyCrisp
-        UIColor(red: 251.0/255.0, green: 65.0/255.0, blue: 74.0/255.0, alpha: 1.0), //colorMelodRed
+        UIColor(netHex:0x3b8af3),
+        //UIColor(red: 251.0/255.0, green: 65.0/255.0, blue: 74.0/255.0, alpha: 1.0), //colorMelodRed
+        UIColor.redColor(),
         UIColor(red: 92.0/255.0, green: 1, blue: 102.0/255.0, alpha: 1.0), //colorFroggertGreen
         UIColor(red: 102.0/255.0, green: 102.0/255.0, blue: 255.0/255.0, alpha: 1.0), //colorPurpleParadise
         UIColor.orangeColor(),
@@ -71,13 +72,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIColor.blackColor(),
         UIColor.magentaColor(),
         UIColor.blueColor(),
-        UIColor.brownColor(),
-        UIColor(netHex:0x3b8af3),
-        UIColor(netHex: 0x75adf6)
+        UIColor.brownColor()
+
     ]
     
 
-
+    let colorSkyCrisp = UIColor(red: 58.0/255.0, green: 179.0/255.0, blue: 255.0/255.0, alpha: 1.0)
 
     
     
@@ -173,9 +173,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         NSNotificationCenter.defaultCenter().postNotificationName("NotificationIdentifierNewMessage", object: nil)
         
-        
-        
     }
+    
     
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
         
@@ -188,8 +187,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let array = Array(arrayLiteral: pushText)
                 
                 if array.first == "A" {
-                    
-                    
+                
                     PFPush.handlePush(userInfo)
                     NSNotificationCenter.defaultCenter().postNotificationName("NotificationIdentifierNewUserPaired", object: nil)
                 }
